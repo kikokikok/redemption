@@ -28,6 +28,7 @@
 #include "utils/log.hpp"
 #include "utils/strutils.hpp"
 #include "utils/sugar/int_to_chars.hpp"
+#include "utils/sugar/scope_exit.hpp"
 
 #include <string>
 #include <new>
@@ -56,19 +57,14 @@ namespace
 
 struct TLSCheckCertificateResource
 {
-    zstring_view printable_name(X509_NAME* name)
+    zstring_view printable_issuer_name(X509 const* x509)
     {
-        auto* outBIO = bio();
-        if (X509_NAME_print_ex(outBIO, name, 0, XN_FLAG_ONELINE) > 0) {
-            auto len = BIO_number_written(outBIO) - bio_len;
-            bio_len += len;
-            auto* s = alloc_charp(len + 1);
-            s[len] = '\0';
-            BIO_read(outBIO, s, checked_int(len));
-            return zstring_view::from_null_terminated(s, len);
-        }
+        return printable_name(X509_get_issuer_name(x509));
+    }
 
-        return zstring_view();
+    zstring_view printable_subject_name(X509 const* x509)
+    {
+        return printable_name(X509_get_subject_name(x509));
     }
 
     zstring_view cert_fingerprint(X509 const* xcert)
@@ -82,16 +78,33 @@ struct TLSCheckCertificateResource
             return zstring_view();
         }
 
-        char* s = alloc_charp(3u * fp_len);
-        char* p = s;
+        auto buf = alloc_charp(3u * fp_len);
+        char* p = buf.data();
 
         for (uint8_t c : bytes_view{fp, fp_len}) {
             p = int_to_fixed_hexadecimal_upper_chars(p, c);
             *p++ = ':';
         }
-        *(p-1) = '\0';
+        // replace last ':' with zero-terminal
+        buf.back() = '\0';
 
-        return zstring_view::from_null_terminated(s, 3u * fp_len - 1);
+        return zstring_view::from_null_terminated(buf.drop_back(1));
+    }
+
+    chars_view get_certificate(X509 const* xcert)
+    {
+        auto* outBIO = bio();
+        if (!PEM_write_bio_X509(outBIO, xcert)) {
+            return {};
+        }
+
+        return read_bio(outBIO, 0);
+    }
+
+    writable_chars_view alloc_charp(std::size_t n)
+    {
+        char* p = std::launder(static_cast<char*>(_mbr.allocate(n, 1)));
+        return writable_chars_view{p, n};
     }
 
     ~TLSCheckCertificateResource()
@@ -117,9 +130,25 @@ private:
         return _bio;
     }
 
-    char* alloc_charp(std::size_t n)
+    writable_chars_view read_bio(BIO* outBIO, std::size_t extra_allocated)
     {
-        return std::launder(static_cast<char*>(_mbr.allocate(n, 1)));
+        auto len = BIO_number_written(outBIO) - bio_len;
+        bio_len += len;
+        auto buf = alloc_charp(len + extra_allocated);
+        BIO_read(outBIO, buf.data(), checked_int(len));
+        return buf;
+    }
+
+    zstring_view printable_name(X509_NAME const* name)
+    {
+        auto* outBIO = bio();
+        if (X509_NAME_print_ex(outBIO, name, 0, XN_FLAG_ONELINE) > 0) {
+            auto buf = read_bio(outBIO, 1);
+            buf.back() = '\0';
+            return zstring_view::from_null_terminated(buf.drop_back(1));
+        }
+
+        return zstring_view();
     }
 };
 
@@ -196,26 +225,28 @@ private:
                 checking_exception = ERR_TRANSPORT_TLS_CERTIFICATE_CORRUPTED;
             }
             else {
-                char tmpfilename[1024];
-                // temp file for certificate binary check
-                snprintf(tmpfilename, sizeof(tmpfilename) - 1, "/tmp/rdp,%s,%d,X509,XXXXXX", ip_address, port);
-                tmpfilename[sizeof(tmpfilename) - 1] = 0;
-                int tmpfd = ::mkostemp(tmpfilename, O_RDWR|O_CREAT);
-                PEM_write_X509(File(::fdopen(tmpfd, "w+")).get(), &x509);
+                SCOPE_EXIT(X509_free(px509Existing));
 
-                certificate_matches = file_equals(filename, tmpfilename);
-                ::unlink(tmpfilename);
+                certificate_matches = [&]{
+                    auto certificate = resource.get_certificate(&x509);
+                    File f1(filename, "r");
+                    // len + 1 for detected EOF
+                    auto buf = f1.read(resource.alloc_charp(certificate.size() + 1));
+                    return buf.size() == certificate.size()
+                        && f1.is_eof()
+                        && 0 == memcmp(certificate.data(), buf.data(), certificate.size());
+                }();
 
-                const auto issuer_existing = resource.printable_name(X509_get_issuer_name(px509Existing));
-                const auto subject_existing = resource.printable_name(X509_get_subject_name(px509Existing));
+                const auto issuer_existing = resource.printable_issuer_name(px509Existing);
+                const auto subject_existing = resource.printable_subject_name(px509Existing);
                 const auto fingerprint_existing = resource.cert_fingerprint(px509Existing);
 
                 LOG(LOG_INFO, "TLS::X509 existing::issuer=%s", issuer_existing);
                 LOG(LOG_INFO, "TLS::X509 existing::subject=%s", subject_existing);
                 LOG(LOG_INFO, "TLS::X509 existing::fingerprint=%s", fingerprint_existing);
 
-                const auto issuer = resource.printable_name(X509_get_issuer_name(&x509));
-                const auto subject = resource.printable_name(X509_get_subject_name(&x509));
+                const auto issuer = resource.printable_issuer_name(&x509);
+                const auto subject = resource.printable_subject_name(&x509);
                 const auto fingerprint = resource.cert_fingerprint(&x509);
 
                 if (!certificate_matches
@@ -246,8 +277,6 @@ private:
                 else {
                     server_notifier.server_cert_status(ServerNotifier::Status::CertSuccess);
                 }
-
-                X509_free(px509Existing);
             }
         }
     }
@@ -351,12 +380,8 @@ private:
         // ASN1_STRING * entry_data = X509_NAME_ENTRY_get_data(entry);
         // void * subject_alt_names = X509_get_ext_d2i(xcert, NID_subject_alt_name, 0, 0);
 
-        X509_NAME * issuer_name = X509_get_issuer_name(&x509);
-        LOG(LOG_INFO, "TLS::X509::issuer=%s", resource.printable_name(issuer_name));
-
-        X509_NAME * subject_name = X509_get_subject_name(&x509);
-        LOG(LOG_INFO, "TLS::X509::subject=%s", resource.printable_name(subject_name));
-
+        LOG(LOG_INFO, "TLS::X509::issuer=%s", resource.printable_issuer_name(&x509));
+        LOG(LOG_INFO, "TLS::X509::subject=%s", resource.printable_subject_name(&x509));
         LOG(LOG_INFO, "TLS::X509::fingerprint=%s", resource.cert_fingerprint(&x509));
     }
     else {

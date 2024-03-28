@@ -202,12 +202,6 @@ RED_AUTO_TEST_CASE(TestRecursiveCreateDirectory)
     }
 }
 
-RED_AUTO_TEST_CASE(TestFileEquals)
-{
-    RED_CHECK(file_equals(__FILE__, __FILE__));
-    RED_CHECK(!file_equals(__FILE__, "/dev/zero"));
-}
-
 RED_AUTO_TEST_CASE(TestAppendFileContents)
 {
     std::string buf;

@@ -61,8 +61,6 @@ bool file_exist(std::string const& path) noexcept;
 bool dir_exist(const char * path) noexcept;
 bool dir_exist(std::string const& path) noexcept;
 
-bool file_equals(char const* filename1, char const* filename2);
-
 SplitedPath ParsePath(const std::string & fullpath);
 
 void MakePath(std::string & fullpath, const char * directory,
