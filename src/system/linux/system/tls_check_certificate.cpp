@@ -158,10 +158,11 @@ private:
     // ensures the certificate directory exists
     LOG(LOG_INFO, "certificate directory is: '%s'", certif_path);
     if (recursive_create_directory(certif_path, S_IRWXU|S_IRWXG) != 0) {
+        int const errnum = errno;
         LOG(LOG_WARNING, "Failed to create certificate directory: %s ", certif_path);
         bad_certificate_path = true;
 
-        server_notifier.server_cert_status(ServerNotifier::Status::CertError, strerror(errno));
+        server_notifier.server_cert_status(ServerNotifier::Status::CertError, strerror(errnum));
         checking_exception = ERR_TRANSPORT_TLS_CERTIFICATE_INACCESSIBLE;
     }
 
@@ -179,11 +180,11 @@ private:
     if (!bad_certificate_path) {
         File fp(filename, "r");
         if (!fp) {
-            switch (errno) {
+            switch (int const errnum = errno) {
             default: {
                 // failed to open stored certificate file
                 LOG(LOG_WARNING, "Failed to open stored certificate: \"%s\"", filename);
-                server_notifier.server_cert_status(ServerNotifier::Status::CertError, strerror(errno));
+                server_notifier.server_cert_status(ServerNotifier::Status::CertError, strerror(errnum));
                 checking_exception = ERR_TRANSPORT_TLS_CERTIFICATE_INACCESSIBLE;
             }
             break;
@@ -201,11 +202,12 @@ private:
         else {
             certificate_exists  = true;
             X509 *px509Existing = PEM_read_X509(fp.get(), nullptr, nullptr, nullptr);
+            int const errnum = px509Existing ? 0 : errno;
             fp.close();
             if (!px509Existing) {
                 // failed to read stored certificate file
                 LOG(LOG_WARNING, "Failed to read stored certificate: \"%s\"", filename);
-                server_notifier.server_cert_status(ServerNotifier::Status::CertError, strerror(errno));
+                server_notifier.server_cert_status(ServerNotifier::Status::CertError, strerror(errnum));
                 checking_exception = ERR_TRANSPORT_TLS_CERTIFICATE_CORRUPTED;
             }
             else  {
