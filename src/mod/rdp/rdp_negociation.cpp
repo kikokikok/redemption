@@ -133,7 +133,7 @@ void RdpNegociation::RDPServerNotifier::server_cert_status(Status status, std::s
 }
 
 CertificateResult RdpNegociation::RDPServerNotifier::server_cert_callback(
-    X509& certificate, std::string* error_message, const char* ip_address, int port)
+    X509& certificate, const char* ip_address, int port)
 {
     if (this->certificate_callback) {
         return this->certificate_callback(certificate);
@@ -154,7 +154,6 @@ CertificateResult RdpNegociation::RDPServerNotifier::server_cert_callback(
         ensure_server_certificate_exists,
         *this,
         certif_path.c_str(),
-        error_message,
         ip_address,
         port)
       ? CertificateResult::valid

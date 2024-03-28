@@ -91,7 +91,7 @@ private:
 
         void server_cert_status(Status status, std::string_view error_msg = {}) override;
 
-        CertificateResult server_cert_callback(X509& certificate, std::string* error_message, const char* ip_address, int port) override;
+        CertificateResult server_cert_callback(X509& certificate, const char* ip_address, int port) override;
 
     private:
         friend class RdpNegociation;

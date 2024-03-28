@@ -148,7 +148,6 @@ private:
     bool ensure_server_certificate_exists,
     ServerNotifier& server_notifier,
     const char* certif_path,
-    std::string* error_message,
     const char* ip_address,
     int port)
 {
@@ -160,9 +159,6 @@ private:
     LOG(LOG_INFO, "certificate directory is: '%s'", certif_path);
     if (recursive_create_directory(certif_path, S_IRWXU|S_IRWXG) != 0) {
         LOG(LOG_WARNING, "Failed to create certificate directory: %s ", certif_path);
-        if (error_message) {
-            str_assign(*error_message, "Failed to create certificate directory: \"", certif_path, "\"\n");
-        }
         bad_certificate_path = true;
 
         server_notifier.server_cert_status(ServerNotifier::Status::CertError, strerror(errno));
@@ -187,9 +183,6 @@ private:
             default: {
                 // failed to open stored certificate file
                 LOG(LOG_WARNING, "Failed to open stored certificate: \"%s\"", filename);
-                if (error_message) {
-                    str_assign(*error_message, "Failed to open stored certificate: \"", filename, "\"\n");
-                }
                 server_notifier.server_cert_status(ServerNotifier::Status::CertError, strerror(errno));
                 checking_exception = ERR_TRANSPORT_TLS_CERTIFICATE_INACCESSIBLE;
             }
@@ -197,10 +190,6 @@ private:
             case ENOENT:
             {
                 LOG(LOG_WARNING, "There's no stored certificate: \"%s\"", filename);
-                if (error_message) {
-                    str_assign(*error_message, "There's no stored certificate: \"", filename, "\"\n");
-                }
-
                 if (ensure_server_certificate_exists) {
                     server_notifier.server_cert_status(ServerNotifier::Status::CertFailure);
                     checking_exception = ERR_TRANSPORT_TLS_CERTIFICATE_MISSED;
@@ -216,10 +205,6 @@ private:
             if (!px509Existing) {
                 // failed to read stored certificate file
                 LOG(LOG_WARNING, "Failed to read stored certificate: \"%s\"", filename);
-                if (error_message) {
-                    str_assign(*error_message, "Failed to read stored certificate: \"", filename, "\"\n");
-                }
-
                 server_notifier.server_cert_status(ServerNotifier::Status::CertError, strerror(errno));
                 checking_exception = ERR_TRANSPORT_TLS_CERTIFICATE_CORRUPTED;
             }
@@ -266,10 +251,6 @@ private:
                         issuer_existing, subject_existing,
                         fingerprint_existing, issuer,
                         subject, fingerprint);
-                    if (error_message) {
-                        str_assign(*error_message, "The certificate has changed: \"", filename, "\"\n");
-                    }
-
                     if (ensure_server_certificate_match) {
                         server_notifier.server_cert_status(ServerNotifier::Status::CertFailure);
                         checking_exception = ERR_TRANSPORT_TLS_CERTIFICATE_CHANGED;
@@ -393,10 +374,6 @@ private:
     }
     else {
         throw Error(checking_exception);
-    }
-
-    if (error_message) {
-        error_message->clear();
     }
 
     return true;

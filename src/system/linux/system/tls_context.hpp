@@ -326,13 +326,12 @@ private:
 public:
     Transport::TlsResult certificate_external_validation(
         ServerNotifier& server_notifier,
-        std::string* error_message,
         const char* ip_address,
         int port)
     {
         // local scope for exception and destruction
         std::unique_ptr px509 = std::exchange(this->cert_external_validation_wait_ctx, nullptr);
-        switch (server_notifier.server_cert_callback(*px509, error_message, ip_address, port))
+        switch (server_notifier.server_cert_callback(*px509, ip_address, port))
         {
             case CertificateResult::wait:
                 this->cert_external_validation_wait_ctx = std::move(px509);
@@ -349,7 +348,6 @@ public:
 
     Transport::TlsResult check_certificate(
         ServerNotifier& server_notifier,
-        std::string* error_message,
         const char* ip_address,
         int port,
         bool anon_tls)
@@ -397,7 +395,7 @@ public:
 
         X509UniquePtr x509_uptr{px509};
 
-        switch (server_notifier.server_cert_callback(*px509, error_message, ip_address, port))
+        switch (server_notifier.server_cert_callback(*px509, ip_address, port))
         {
             case CertificateResult::wait:
                 this->cert_external_validation_wait_ctx = std::move(x509_uptr);

@@ -150,7 +150,7 @@ Transport::TlsResult SocketTransport::enable_client_tls(ServerNotifier & server_
                 case Transport::TlsResult::Ok: {
                     try {
                         ret = this->tls->check_certificate(
-                            server_notifier, this->error_message,
+                            server_notifier,
                             this->ip_address, this->port, bool(anonymous_tls));
 
                         if (ret == Transport::TlsResult::WaitExternalEvent) {
@@ -176,7 +176,7 @@ Transport::TlsResult SocketTransport::enable_client_tls(ServerNotifier & server_
             return Transport::TlsResult::Fail;
         case TLSState::WaitCertCb:
             switch (this->tls->certificate_external_validation(
-                server_notifier, this->error_message, this->ip_address, this->port
+                server_notifier, this->ip_address, this->port
             )) {
                 case Transport::TlsResult::Ok:
                     LOG(LOG_INFO, "SocketTransport::enable_client_tls() done");

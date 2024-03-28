@@ -48,7 +48,7 @@ public:
 
     virtual void server_cert_status(Status status, std::string_view error_msg = {}) = 0; /*NOLINT*/
 
-    virtual CertificateResult server_cert_callback(X509& certificate, std::string* error_message, const char* ip_address, int port) = 0;
+    virtual CertificateResult server_cert_callback(X509& certificate, const char* ip_address, int port) = 0;
 
     virtual ~ServerNotifier() = default;
 };
@@ -62,12 +62,11 @@ public:
         (void)error_msg;
     }
 
-    CertificateResult server_cert_callback(X509& certificate, std::string* error_message, const char* ip_address, int port) override
+    CertificateResult server_cert_callback(X509& certificate, const char* ip_address, int port) override
     {
         (void)certificate;
         (void)ip_address;
         (void)port;
-        (void)error_message;
         return CertificateResult::valid;
     }
 };
