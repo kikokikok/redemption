@@ -30,7 +30,8 @@
 #include "utils/sugar/int_to_chars.hpp"
 
 #include <string>
-#include <memory>
+#include <new>
+#include <memory_resource>
 #include <cstring>
 #include <cstdlib>
 
@@ -53,90 +54,73 @@ REDEMPTION_DIAGNOSTIC_GCC_ONLY_IGNORE("-Wzero-as-null-pointer-constant")
 namespace
 {
 
-struct BIOMem
+struct TLSCheckCertificateResource
 {
-    ~BIOMem()
+    zstring_view printable_name(X509_NAME* name)
     {
-        BIO_free(outBIO);
-    }
-
-    operator BIO* () noexcept
-    {
-        return outBIO;
-    }
-
-private:
-    BIO* outBIO = BIO_new(BIO_s_mem());
-};
-
-struct ZStringName
-{
-    // TODO we should be able to simplify that to just put expected value in a provided buffer
-    static ZStringName printable_name(X509_NAME* name)
-    {
-        ZStringName result;
-        BIOMem outBIO;
-
-        if (X509_NAME_print_ex(outBIO, name, 0, XN_FLAG_ONELINE) > 0)
-        {
-            result.len = BIO_number_written(outBIO);
-            result.buffer = std::make_unique<char[]>(result.len + 1);
-            result.ptr = result.buffer.get();
-            BIO_read(outBIO, result.buffer.get(), result.len);
+        auto* outBIO = bio();
+        if (X509_NAME_print_ex(outBIO, name, 0, XN_FLAG_ONELINE) > 0) {
+            auto len = BIO_number_written(outBIO) - bio_len;
+            bio_len += len;
+            auto* s = alloc_charp(len + 1);
+            s[len] = '\0';
+            BIO_read(outBIO, s, checked_int(len));
+            return zstring_view::from_null_terminated(s, len);
         }
 
-        return result;
+        return zstring_view();
     }
 
-    // TODO we should be able to simplify that to just put expected value in a provided buffer
-    static ZStringName cert_fingerprint(X509 const* xcert)
+    zstring_view cert_fingerprint(X509 const* xcert)
     {
-        ZStringName result;
-
-        uint32_t fp_len;
+        uint32_t fp_len = 0;
         uint8_t fp[EVP_MAX_MD_SIZE];
 
         X509_digest(xcert, EVP_sha1(), fp, &fp_len);
 
-        result.len = fp_len ? 3 * fp_len - 1 : 0;
-        result.buffer = std::make_unique<char[]>(3 * fp_len);
-        result.ptr = result.buffer.get();
+        if (!fp_len) {
+            return zstring_view();
+        }
 
-        bytes_view fp_view = {fp, fp_len};
+        char* s = alloc_charp(3u * fp_len);
+        char* p = s;
 
-        char * p = result.buffer.get();
-
-        for (uint8_t c : fp_view.drop_back(1))
-        {
+        for (uint8_t c : bytes_view{fp, fp_len}) {
             p = int_to_fixed_hexadecimal_upper_chars(p, c);
             *p++ = ':';
         }
-        p = int_to_fixed_hexadecimal_upper_chars(p, fp_view.back());
-        *p = '\0';
+        *(p-1) = '\0';
 
-        return result;
+        return zstring_view::from_null_terminated(s, 3u * fp_len - 1);
     }
 
-    bool is_empty() const noexcept
+    ~TLSCheckCertificateResource()
     {
-        return !bool(buffer);
-    }
-
-    std::string_view sv() const noexcept
-    {
-        return {c_str(), len};
-    }
-
-    REDEMPTION_ATTRIBUTE_RETURNS_NONNULL
-    char const* c_str() const noexcept
-    {
-        return ptr;
+        if (_bio) {
+            BIO_free(_bio);
+        }
     }
 
 private:
-    char const* ptr = "";
-    std::size_t len = 0;
-    std::unique_ptr<char[]> buffer;
+    std::pmr::monotonic_buffer_resource _mbr;
+    BIO* _bio = nullptr;
+    uint64_t bio_len = 0;
+
+    BIO* bio()
+    {
+        if (REDEMPTION_UNLIKELY(!_bio)) {
+            _bio = BIO_new(BIO_s_mem());
+            if (!_bio) {
+                throw Error(ERR_MEMORY_ALLOCATION_FAILED);
+            }
+        }
+        return _bio;
+    }
+
+    char* alloc_charp(std::size_t n)
+    {
+        return std::launder(static_cast<char*>(_mbr.allocate(n, 1)));
+    }
 };
 
 } // anonymous namespace
@@ -151,7 +135,8 @@ private:
     const char* ip_address,
     int port)
 {
-    // TODO("Before to have default value certificate doesn't exists")
+    TLSCheckCertificateResource resource;
+
     bool bad_certificate_path = false;
     error_type checking_exception = NO_ERROR;
 
@@ -210,7 +195,7 @@ private:
                 server_notifier.server_cert_status(ServerNotifier::Status::CertError, strerror(errnum));
                 checking_exception = ERR_TRANSPORT_TLS_CERTIFICATE_CORRUPTED;
             }
-            else  {
+            else {
                 char tmpfilename[1024];
                 // temp file for certificate binary check
                 snprintf(tmpfilename, sizeof(tmpfilename) - 1, "/tmp/rdp,%s,%d,X509,XXXXXX", ip_address, port);
@@ -221,17 +206,17 @@ private:
                 certificate_matches = file_equals(filename, tmpfilename);
                 ::unlink(tmpfilename);
 
-                const auto issuer_existing      = ZStringName::printable_name(X509_get_issuer_name(px509Existing));
-                const auto subject_existing     = ZStringName::printable_name(X509_get_subject_name(px509Existing));
-                const auto fingerprint_existing = ZStringName::cert_fingerprint(px509Existing);
+                const auto issuer_existing = resource.printable_name(X509_get_issuer_name(px509Existing));
+                const auto subject_existing = resource.printable_name(X509_get_subject_name(px509Existing));
+                const auto fingerprint_existing = resource.cert_fingerprint(px509Existing);
 
                 LOG(LOG_INFO, "TLS::X509 existing::issuer=%s", issuer_existing);
                 LOG(LOG_INFO, "TLS::X509 existing::subject=%s", subject_existing);
                 LOG(LOG_INFO, "TLS::X509 existing::fingerprint=%s", fingerprint_existing);
 
-                const auto issuer               = ZStringName::printable_name(X509_get_issuer_name(&x509));
-                const auto subject              = ZStringName::printable_name(X509_get_subject_name(&x509));
-                const auto fingerprint          = ZStringName::cert_fingerprint(&x509);
+                const auto issuer = resource.printable_name(X509_get_issuer_name(&x509));
+                const auto subject = resource.printable_name(X509_get_subject_name(&x509));
+                const auto fingerprint = resource.cert_fingerprint(&x509);
 
                 if (!certificate_matches
                     // Read certificate fields to ensure change is not irrelevant
@@ -241,12 +226,12 @@ private:
                     // - fingerprint changed
                     // other changes are ignored (expiration date for instance,
                     //  and revocation list is not checked)
-                    && ((issuer_existing.sv() != issuer.sv())
+                    && ((issuer_existing.to_sv() != issuer.to_sv())
                     // Only one of subject_existing and subject is null
-                    || (subject_existing.is_empty() ^ subject.is_empty())
+                    || (subject_existing.empty() ^ subject.empty())
                     // All of subject_existing and subject are not null
-                    || (!subject.is_empty() && subject_existing.sv() != subject.sv())
-                    || (fingerprint_existing.sv() != fingerprint.sv()))
+                    || (!subject.empty() && subject_existing.to_sv() != subject.to_sv())
+                    || (fingerprint_existing.to_sv() != fingerprint.to_sv()))
                 ) {
                     LOG(LOG_WARNING, "The certificate for host %s:%d has changed Previous=\"%s\" \"%s\" \"%s\", New=\"%s\" \"%s\" \"%s\"",
                         ip_address, port,
@@ -367,12 +352,12 @@ private:
         // void * subject_alt_names = X509_get_ext_d2i(xcert, NID_subject_alt_name, 0, 0);
 
         X509_NAME * issuer_name = X509_get_issuer_name(&x509);
-        LOG(LOG_INFO, "TLS::X509::issuer=%s", ZStringName::printable_name(issuer_name));
+        LOG(LOG_INFO, "TLS::X509::issuer=%s", resource.printable_name(issuer_name));
 
         X509_NAME * subject_name = X509_get_subject_name(&x509);
-        LOG(LOG_INFO, "TLS::X509::subject=%s", ZStringName::printable_name(subject_name));
+        LOG(LOG_INFO, "TLS::X509::subject=%s", resource.printable_name(subject_name));
 
-        LOG(LOG_INFO, "TLS::X509::fingerprint=%s", ZStringName::cert_fingerprint(&x509));
+        LOG(LOG_INFO, "TLS::X509::fingerprint=%s", resource.cert_fingerprint(&x509));
     }
     else {
         throw Error(checking_exception);
