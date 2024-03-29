@@ -1611,8 +1611,6 @@ RED_AUTO_TEST_CASE(TestCaptureToWrmReplayToPng)
     player.interpret_order();
     RED_CHECK_IMG(drawable, IMG_TEST_PATH "/wrm_to_png/5.png");
     RED_TEST(!player.next_order());
-
-    in_wrm_trans.disconnect();
 }
 
 

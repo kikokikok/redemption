@@ -30,15 +30,15 @@ RED_AUTO_TEST_CASE(TestGeneratorTransport)
     // test we can read from a GeneratorTransport;
     GeneratorTransport gt("We read what we provide!"_av);
     char buffer[128] = {};
-    RED_CHECK(gt.recv_boom(buffer, 0) == ""_av);
+    RED_CHECK(gt->recv_boom(buffer, 0) == ""_av);
 
-    RED_CHECK(gt.recv_boom(buffer, 1) == "W"_av);
+    RED_CHECK(gt->recv_boom(buffer, 1) == "W"_av);
     RED_CHECK_EQ(buffer[1], '\0'); // unchanged, not put by GeneratorTransport
-    RED_CHECK(gt.recv_boom(buffer, 2) == "e "_av);
+    RED_CHECK(gt->recv_boom(buffer, 2) == "e "_av);
     RED_CHECK_EQ(buffer[3], '\0'); // unchanged, not put by GeneratorTransport
-    RED_CHECK(gt.recv_boom(buffer, 9) == "read what"_av);
-    RED_CHECK(gt.recv_boom(buffer, 12) == " we provide!"_av);
-    RED_CHECK_EXCEPTION_ERROR_ID(gt.recv_boom(buffer, 1), ERR_TRANSPORT_NO_MORE_DATA);
+    RED_CHECK(gt->recv_boom(buffer, 9) == "read what"_av);
+    RED_CHECK(gt->recv_boom(buffer, 12) == " we provide!"_av);
+    RED_CHECK_EXCEPTION_ERROR_ID(gt->recv_boom(buffer, 1), ERR_TRANSPORT_NO_MORE_DATA);
 }
 
 RED_AUTO_TEST_CASE(TestGeneratorTransport2)
@@ -46,14 +46,14 @@ RED_AUTO_TEST_CASE(TestGeneratorTransport2)
     // test we can read from a GeneratorTransport;
     GeneratorTransport gt("We read what we provide!"_av);
     char buffer[128] = {};
-    RED_CHECK(gt.recv_boom(buffer, 0) == ""_av);
+    RED_CHECK(gt->recv_boom(buffer, 0) == ""_av);
 
     // buffer[1] unchanged, not put by GeneratorTransport
-    RED_CHECK(gt.recv_boom(buffer, 1) == "W"_av);
-    RED_CHECK(gt.recv_boom(buffer, 2) == "e "_av);
-    RED_CHECK(gt.recv_boom(buffer, 9) == "read what"_av);
-    RED_CHECK_EXCEPTION_ERROR_ID(gt.recv_boom(buffer, 13), ERR_TRANSPORT_READ_FAILED);
-    RED_CHECK(gt.recv_boom(buffer, 12) == " we provide!"_av);
+    RED_CHECK(gt->recv_boom(buffer, 1) == "W"_av);
+    RED_CHECK(gt->recv_boom(buffer, 2) == "e "_av);
+    RED_CHECK(gt->recv_boom(buffer, 9) == "read what"_av);
+    RED_CHECK_EXCEPTION_ERROR_ID(gt->recv_boom(buffer, 13), ERR_TRANSPORT_READ_FAILED);
+    RED_CHECK(gt->recv_boom(buffer, 12) == " we provide!"_av);
 }
 
 RED_AUTO_TEST_CASE(TestTestTransport)
@@ -66,12 +66,11 @@ RED_AUTO_TEST_CASE(TestTestTransport)
     // and status is set to false (and will stay so) to allow tests to fail.
     // inside Transport, the difference is shown in trace logs.
     TestTransport gt("OUTPUT"_av, "input"_av);
-    gt.disable_remaining_error();
     char buffer[128] = {};
-    RED_CHECK(gt.recv_boom(buffer, 3) == "OUT"_av);
-    gt.send("in", 2);
-    RED_CHECK(gt.recv_boom(buffer, 3) == "PUT"_av);
-    gt.send("put", 3);
+    RED_CHECK(gt->recv_boom(buffer, 3) == "OUT"_av);
+    gt->send("in", 2);
+    RED_CHECK(gt->recv_boom(buffer, 3) == "PUT"_av);
+    gt->send("put", 3);
 }
 
 RED_AUTO_TEST_CASE(TestMemoryTransport)
@@ -80,11 +79,11 @@ RED_AUTO_TEST_CASE(TestMemoryTransport)
 
     auto data = "0123456789ABCDEF"_av;
 
-    mt.send(data);
+    mt->send(data);
 
     char r_data[32] {};
 
-    RED_CHECK(mt.recv_boom(r_data, 4) == "0123"_av);
-    RED_CHECK(mt.recv_boom(r_data, 4) == "4567"_av);
-    RED_CHECK(mt.recv_boom(r_data, data.size() - 8) == "89ABCDEF"_av);
+    RED_CHECK(mt->recv_boom(r_data, 4) == "0123"_av);
+    RED_CHECK(mt->recv_boom(r_data, 4) == "4567"_av);
+    RED_CHECK(mt->recv_boom(r_data, data.size() - 8) == "89ABCDEF"_av);
 }

@@ -83,9 +83,9 @@ public:
     }
 };
 
-struct FrontTransport : GeneratorTransport
+struct FrontTransportImpl : GeneratorTransport::Impl
 {
-    using GeneratorTransport::GeneratorTransport;
+    using GeneratorTransport::Impl::Impl;
 
     void do_send(const uint8_t * const /*buffer*/, size_t /*len*/) override
     {
@@ -94,6 +94,8 @@ struct FrontTransport : GeneratorTransport
 
     int counter = 0;
 };
+
+using FrontTransport = AutoDisconnectTransportWrapper<FrontTransportImpl>;
 
 ClientInfo make_client_info()
 {
@@ -128,7 +130,7 @@ RED_AUTO_TEST_CASE(TestFront)
     //                           , verbose, 0);
 
     // Comment the code block below to generate testing data.
-    FrontTransport front_trans(cstr_array_view(dump_front::indata));
+    FrontTransport front_trans{{cstr_array_view(dump_front::indata)}};
 
     LCGRandom gen1;
 
@@ -177,7 +179,7 @@ RED_AUTO_TEST_CASE(TestFront)
     //                  , &error_message
     //                  );
 
-    FrontTransport t(cstr_array_view(dump2008::indata));
+    FrontTransport t{{cstr_array_view(dump2008::indata)}};
 
     Theme theme;
 
@@ -284,7 +286,7 @@ struct FrontCtx
         AccumulateInputMod& mod,
         Inifile& ini,
         Front::GuestParameters guest_params = {})
-    : trans(FrontTransport(cstr_array_view(dump_front::indata)))
+    : trans(FrontTransport{{cstr_array_view(dump_front::indata)}})
     , mod(mod)
     , front(events, mod.session_log, trans, gen1, ini, cctx, guest_params)
     {
@@ -428,10 +430,10 @@ inline constexpr auto user_kill_log_event =
 int draw(FrontCtx& front_ctx)
 {
     front_ctx.front.sync();
-    front_ctx.trans.counter = 0;
+    front_ctx.trans.impl.counter = 0;
     front_ctx.front.draw(RDPOpaqueRect({0, 0, 10, 10}, RDPColor()), Rect(0, 0, 10, 10), gdi::ColorCtx::depth24());
     front_ctx.front.sync();
-    return front_ctx.trans.counter;
+    return front_ctx.trans.impl.counter;
 }
 
 void init_ini(Inifile& ini)

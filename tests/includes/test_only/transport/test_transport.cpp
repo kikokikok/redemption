@@ -20,19 +20,13 @@
    Transport layer abstraction
 */
 
-#include <new>
-#include <memory>
-#include <stdexcept>
-#include <charconv>
-
-#include <string>
-
+#include <exception>
 #include <algorithm>
+
 #include <cstring>
 
 #include "transport/transport.hpp"
 #include "utils/sugar/bytes_view.hpp"
-#include "utils/strutils.hpp"
 
 #include "test_only/test_framework/redemption_unit_tests.hpp"
 #include "test_only/transport/test_transport.hpp"
@@ -42,9 +36,12 @@ namespace test_transport
 {
 namespace
 {
-    struct RemainingError : std::runtime_error
+    struct RemainingError : std::exception
     {
-        using std::runtime_error::runtime_error;
+        const char * what() const noexcept override
+        {
+            return "remaining data";
+        }
     };
 
     struct hexdump
@@ -57,6 +54,11 @@ namespace
         char const * type;
         uint8_t const * p;
         std::size_t len;
+
+        static hexdump_trailing from_bytes(char const * type, bytes_view av)
+        {
+            return {type, av.data(), av.size()};
+        }
 
         bytes_view sig() const
         {
@@ -133,6 +135,15 @@ namespace
 } // namespace test_transport
 
 GeneratorTransport::GeneratorTransport(bytes_view buffer)
+: impl(buffer)
+{}
+
+GeneratorTransport::~GeneratorTransport() noexcept(false)
+{
+    this->impl.disconnect();
+}
+
+GeneratorTransport::Impl::Impl(bytes_view buffer)
 : data(new(std::nothrow) uint8_t[buffer.size()])
 , len(buffer.size())
 {
@@ -144,28 +155,25 @@ GeneratorTransport::GeneratorTransport(bytes_view buffer)
     }
 }
 
-GeneratorTransport::~GeneratorTransport()
-{
-    this->disconnect();
-}
-
-bool GeneratorTransport::disconnect()
+bool GeneratorTransport::Impl::disconnect()
 {
     if (this->remaining_is_error && this->len != this->current) {
         this->remaining_is_error = false;
-        RED_REQUIRE_MESSAGE(this->len == this->current,
+        RED_CHECK_MESSAGE(this->len == this->current,
             "\n~GeneratorTransport() remaining=" << (this->len-this->current)
             << " len=" << this->len << "\n"
             << (test_transport::hexdump_trailing{
                 "GeneratorTransport", this->data.get() + this->current, this->len - this->current
             })
         );
-        throw test_transport::RemainingError{""};
+        if (!std::uncaught_exceptions()) {
+            throw test_transport::RemainingError();
+        }
     }
     return true;
 }
 
-Transport::Read GeneratorTransport::do_atomic_read(uint8_t * buffer, size_t len)
+Transport::Read GeneratorTransport::Impl::do_atomic_read(uint8_t * buffer, size_t len)
 {
     size_t const remaining = this->len - this->current;
     if (!remaining) {
@@ -179,7 +187,7 @@ Transport::Read GeneratorTransport::do_atomic_read(uint8_t * buffer, size_t len)
     return Read::Ok;
 }
 
-size_t GeneratorTransport::do_partial_read(uint8_t* buffer, size_t len)
+size_t GeneratorTransport::Impl::do_partial_read(uint8_t* buffer, size_t len)
 {
     size_t const remaining = this->len - this->current;
     if (!remaining) {
@@ -222,6 +230,15 @@ size_t BufTransport::do_partial_read(uint8_t* buffer, size_t len)
 
 
 CheckTransport::CheckTransport(buffer_view buffer)
+: impl(buffer)
+{}
+
+CheckTransport::~CheckTransport() noexcept(false)
+{
+    this->impl.disconnect();
+}
+
+CheckTransport::Impl::Impl(buffer_view buffer)
 : data(new(std::nothrow) uint8_t[buffer.size()])
 , len(buffer.size())
 {
@@ -231,28 +248,25 @@ CheckTransport::CheckTransport(buffer_view buffer)
     memcpy(this->data.get(), buffer.data(), this->len);
 }
 
-CheckTransport::~CheckTransport()
-{
-    this->disconnect();
-}
-
-bool CheckTransport::disconnect()
+bool CheckTransport::Impl::disconnect()
 {
     if (this->remaining_is_error && this->len != this->current) {
         this->remaining_is_error = false;
-        RED_REQUIRE_MESSAGE(this->len == this->current,
+        RED_CHECK_MESSAGE(this->len == this->current,
             "\n~CheckTransport() reamining=0 failed, remaining=" << (this->len-this->current)
             << " len=" << this->len << "\n"
             << (test_transport::hexdump_trailing{
                 "CheckTransport", this->data.get() + this->current, this->len - this->current
             })
         );
-        throw test_transport::RemainingError{""};
+        if (!std::uncaught_exceptions()) {
+            throw test_transport::RemainingError();
+        }
     }
     return true;
 }
 
-void CheckTransport::do_send(const uint8_t * const data, size_t len)
+void CheckTransport::Impl::do_send(const uint8_t * const data, size_t len)
 {
     const size_t available_len = std::min<size_t>(this->len - this->current, len);
 
@@ -294,61 +308,74 @@ void CheckTransport::do_send(const uint8_t * const data, size_t len)
 
 
 TestTransport::TestTransport(bytes_view indata, bytes_view outdata)
+: impl(indata, outdata)
+{}
+
+TestTransport::~TestTransport() noexcept(false)
+{
+    impl.gen.disconnect();
+    impl.check.disconnect();
+}
+
+TestTransport::Impl::Impl(bytes_view indata, bytes_view outdata)
 : check(outdata)
 , gen(indata)
 {}
 
 void TestTransport::set_public_key(bytes_view key)
 {
-    this->public_key.reset(new uint8_t[key.size()]);
-    this->public_key_length = key.size();
-    memcpy(this->public_key.get(), key.data(), key.size());
+    this->impl.public_key.reset(new uint8_t[key.size()]);
+    this->impl.public_key_length = key.size();
+    memcpy(this->impl.public_key.get(), key.data(), key.size());
 }
 
-u8_array_view TestTransport::get_public_key() const
+u8_array_view TestTransport::Impl::get_public_key() const
 {
     return {this->public_key.get(), this->public_key_length};
 }
 
-TestTransport::Read TestTransport::do_atomic_read(uint8_t * buffer, size_t len)
+Transport::Read TestTransport::Impl::do_atomic_read(uint8_t * buffer, size_t len)
 {
     return this->gen.atomic_read(buffer, len);
 }
 
-size_t TestTransport::do_partial_read(uint8_t* buffer, size_t len)
+size_t TestTransport::Impl::do_partial_read(uint8_t* buffer, size_t len)
 {
     return this->gen.partial_read(buffer, len);
 }
 
-void TestTransport::do_send(const uint8_t * const buffer, size_t len)
+void TestTransport::Impl::do_send(const uint8_t * const buffer, size_t len)
 {
     this->check.send(buffer, len);
 }
 
 
-MemoryTransport::~MemoryTransport()
+MemoryTransport::~MemoryTransport() noexcept(false)
 {
-    this->disconnect();
+    this->impl.disconnect();
 }
 
-bool MemoryTransport::disconnect()
+bool MemoryTransport::Impl::disconnect()
 {
     if (this->remaining_is_error && this->in_stream.get_offset() != this->out_stream.get_offset()) {
-        char buf1[64];
-        char buf2[64];
-        using std::begin;
-        using std::end;
-        auto r1 = std::to_chars(begin(buf1), end(buf1), this->in_stream.get_offset());
-        auto r2 = std::to_chars(begin(buf1), end(buf1), this->out_stream.get_offset());
-        throw test_transport::RemainingError{str_concat(
-            "~MemoryTransport() remaining=", chars_view{buf1, r1.ptr},
-            " len=", chars_view{buf2, r2.ptr}
-        )};
+        RED_CHECK_MESSAGE(this->in_stream.get_offset() == this->out_stream.get_offset(),
+            "\n~MemoryTransport() remaining=0 failed, remaining=" << this->in_stream.in_remain()
+            << " len=" << this->out_stream.tailroom() << "\n"
+            << (test_transport::hexdump_trailing::from_bytes(
+                "MemoryTransport[in]", this->in_stream.remaining_bytes()
+            )) << "\n"
+            << (test_transport::hexdump_trailing::from_bytes(
+                "MemoryTransport[out]", this->out_stream.get_tail()
+            ))
+        );
+        if (!std::uncaught_exceptions()) {
+            throw test_transport::RemainingError();
+        }
     }
     return true;
 }
 
-MemoryTransport::Read MemoryTransport::do_atomic_read(uint8_t * buffer, size_t len)
+Transport::Read MemoryTransport::Impl::do_atomic_read(uint8_t * buffer, size_t len)
 {
     auto const in_offset = this->in_stream.get_offset();
     auto const out_offset = this->out_stream.get_offset();
@@ -362,7 +389,7 @@ MemoryTransport::Read MemoryTransport::do_atomic_read(uint8_t * buffer, size_t l
     return Read::Ok;
 }
 
-size_t MemoryTransport::do_partial_read(uint8_t* buffer, size_t len)
+size_t MemoryTransport::Impl::do_partial_read(uint8_t* buffer, size_t len)
 {
     auto const in_offset = this->in_stream.get_offset();
     auto const out_offset = this->out_stream.get_offset();
@@ -374,7 +401,7 @@ size_t MemoryTransport::do_partial_read(uint8_t* buffer, size_t len)
     return len;
 }
 
-void MemoryTransport::do_send(const uint8_t * const buffer, size_t len)
+void MemoryTransport::Impl::do_send(const uint8_t * const buffer, size_t len)
 {
     if (len > this->out_stream.tailroom()) {
         throw Error(ERR_TRANSPORT_WRITE_FAILED);

@@ -225,7 +225,7 @@ namespace
         {
             auto mod = new_mod_rdp(trans, license_store);
 
-            event_manager.execute_events([&](int /*sck*/)->bool {return true;}, false);
+            event_manager.execute_events([](int /*sck*/){return true;}, false);
 
             // TODO: fix that for actual TESTING DATA GENERATION
             unique_server_loop(unique_fd(trans.get_fd()), [&](int /*sck*/)->bool {
@@ -242,12 +242,11 @@ namespace
         {
             auto mod = new_mod_rdp(trans, license_store);
 
-            trans.disable_remaining_error();
-            event_manager.execute_events([&](int /*sck*/)->bool {return true;}, false);
+            event_manager.execute_events([](int /*sck*/){return true;}, false);
 
             int n = 0;
             while (!event_manager.is_empty() && (++n < 70)) {
-                event_manager.execute_events([&](int /*sck*/)->bool {return true;}, false);
+                event_manager.execute_events([](int /*sck*/){return true;}, false);
             }
         }
 #endif
@@ -420,6 +419,7 @@ RED_AUTO_TEST_CASE(TestWithoutExistingLicense)
                     (already_redirected ? cstr_array_view(indata_woel_2) : cstr_array_view(indata_woel_1)),
                     (already_redirected ? cstr_array_view(outdata_woel_2) : cstr_array_view(outdata_woel_1))
                 );
+            trans.disable_remaining_error();
 #endif
 
             ctx.event_loop(trans, license_store);
@@ -431,6 +431,8 @@ RED_AUTO_TEST_CASE(TestWithoutExistingLicense)
                 ctx.set_new_target();
 
                 do_work = true;
+
+                RED_CHECK(!already_redirected);
 
                 already_redirected = true;
 
@@ -548,6 +550,7 @@ RED_AUTO_TEST_CASE(TestWithExistingLicense)
                     (already_redirected ? cstr_array_view(indata_wel_2) : cstr_array_view(indata_wel_1)),
                     (already_redirected ? cstr_array_view(outdata_wel_2) : cstr_array_view(outdata_wel_1))
                 );
+            trans.disable_remaining_error();
 #endif
 
             ctx.event_loop(trans, license_store);
@@ -559,6 +562,8 @@ RED_AUTO_TEST_CASE(TestWithExistingLicense)
                 ctx.set_new_target();
 
                 do_work = true;
+
+                RED_CHECK(!already_redirected);
 
                 already_redirected = true;
 

@@ -116,7 +116,7 @@ RED_AUTO_TEST_CASE_WF(TestRecorderTransport, wf)
             header.type != RecorderFile::PacketType::Eof
         ) {
             RED_CHECK_EQ(((it->type == Pck::DataIn) ? 3 : it->s.size()), header.data_size);
-            RED_CHECK_EQ(Transport::Read::Ok, trans.atomic_read({s.data(), header.data_size}));
+            RED_CHECK_EQ(Transport::Read::Ok, trans->atomic_read({s.data(), header.data_size}));
             ++it;
         }
         RED_CHECK_EQ(it-std::begin(a), std::size(a));

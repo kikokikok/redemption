@@ -156,8 +156,6 @@ RED_AUTO_TEST_CASE(TestDecodePacket)
     RED_CHECK_EQUAL(info.screen_info.width, 1024);
     RED_CHECK_EQUAL(info.screen_info.height, 768);
 
-    t.disable_remaining_error();
-
     int n = 72;
     int count = 0;
     detail::ProtectedEventContainer::get_events(events)[0]->fd = 0;
@@ -211,16 +209,20 @@ RED_AUTO_TEST_CASE(TestDecodePacket2)
     //                     , &error_message
     //                     );
 
-    class LimitedTestTransport : public TestTransport {
-        using TestTransport::TestTransport;
+    class LimitedTestTransportImpl : public TestTransport::Impl
+    {
+        using TestTransport::Impl::Impl;
 
-        size_t do_partial_read(uint8_t * buffer, size_t len) override {
-            return TestTransport::do_partial_read(buffer, std::min(len, size_t(11)));
+        size_t do_partial_read(uint8_t * buffer, size_t len) override
+        {
+            return Impl::do_partial_read(buffer, std::min(len, size_t(11)));
         }
     };
 
+    using LimitedTestTransport = AutoDisconnectTransportWrapper<LimitedTestTransportImpl>;
+
     #include "fixtures/dump_TLSw2008_2.hpp"
-    LimitedTestTransport t(cstr_array_view(indata), cstr_array_view(outdata));
+    LimitedTestTransport t{{cstr_array_view(indata), cstr_array_view(outdata)}};
 
     snprintf(info.hostname, sizeof(info.hostname), "192-168-1-100");
 
@@ -284,8 +286,6 @@ RED_AUTO_TEST_CASE(TestDecodePacket2)
 
     RED_CHECK_EQUAL(info.screen_info.width, 1024);
     RED_CHECK_EQUAL(info.screen_info.height, 768);
-
-    t.disable_remaining_error();
 
     int n = 42;
     int count = 0;
