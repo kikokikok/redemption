@@ -245,36 +245,40 @@ private:
                 LOG(LOG_INFO, "TLS::X509 existing::subject=%s", subject_existing);
                 LOG(LOG_INFO, "TLS::X509 existing::fingerprint=%s", fingerprint_existing);
 
-                const auto issuer = resource.printable_issuer_name(&x509);
-                const auto subject = resource.printable_subject_name(&x509);
-                const auto fingerprint = resource.cert_fingerprint(&x509);
+                bool certificate_check_success = true;
+                if (!certificate_matches) {
+                    const auto issuer = resource.printable_issuer_name(&x509);
+                    const auto subject = resource.printable_subject_name(&x509);
+                    const auto fingerprint = resource.cert_fingerprint(&x509);
 
-                if (!certificate_matches
-                    // Read certificate fields to ensure change is not irrelevant
-                    // Relevant changes are either:
-                    // - issuer changed
-                    // - subject changed (or appears, or disappears)
-                    // - fingerprint changed
-                    // other changes are ignored (expiration date for instance,
-                    //  and revocation list is not checked)
-                    && ((issuer_existing.to_sv() != issuer.to_sv())
-                    // Only one of subject_existing and subject is null
-                    || (subject_existing.empty() ^ subject.empty())
-                    // All of subject_existing and subject are not null
-                    || (!subject.empty() && subject_existing.to_sv() != subject.to_sv())
-                    || (fingerprint_existing.to_sv() != fingerprint.to_sv()))
-                ) {
-                    LOG(LOG_WARNING, "The certificate for host %s:%d has changed Previous=\"%s\" \"%s\" \"%s\", New=\"%s\" \"%s\" \"%s\"",
-                        ip_address, port,
-                        issuer_existing, subject_existing,
-                        fingerprint_existing, issuer,
-                        subject, fingerprint);
-                    if (ensure_server_certificate_match) {
-                        server_notifier.server_cert_status(ServerNotifier::Status::CertFailure);
-                        checking_exception = ERR_TRANSPORT_TLS_CERTIFICATE_CHANGED;
+                    if (// Read certificate fields to ensure change is not irrelevant
+                        // Relevant changes are either:
+                        // - issuer changed
+                        // - subject changed (or appears, or disappears)
+                        // - fingerprint changed
+                        // other changes are ignored (expiration date for instance,
+                        //  and revocation list is not checked)
+                           ((issuer_existing.to_sv() != issuer.to_sv())
+                        // Only one of subject_existing and subject is null
+                        || (subject_existing.empty() ^ subject.empty())
+                        // All of subject_existing and subject are not null
+                        || (!subject.empty() && subject_existing.to_sv() != subject.to_sv())
+                        || (fingerprint_existing.to_sv() != fingerprint.to_sv()))
+                    ) {
+                        LOG(LOG_WARNING, "The certificate for host %s:%d has changed Previous=\"%s\" \"%s\" \"%s\", New=\"%s\" \"%s\" \"%s\"",
+                            ip_address, port,
+                            issuer_existing, subject_existing,
+                            fingerprint_existing, issuer,
+                            subject, fingerprint);
+                        if (ensure_server_certificate_match) {
+                            server_notifier.server_cert_status(ServerNotifier::Status::CertFailure);
+                            checking_exception = ERR_TRANSPORT_TLS_CERTIFICATE_CHANGED;
+                        }
+                        certificate_check_success = false;
                     }
                 }
-                else {
+
+                if (certificate_check_success) {
                     server_notifier.server_cert_status(ServerNotifier::Status::CertSuccess);
                 }
             }
