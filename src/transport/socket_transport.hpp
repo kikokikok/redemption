@@ -28,7 +28,6 @@
 #include "utils/verbose_flags.hpp"
 #include "utils/sugar/unique_fd.hpp"
 
-#include <string>
 #include <memory>
 #include <vector>
 
@@ -62,7 +61,6 @@ private:
     char ip_address[128];
     int  port;
 
-    std::string * error_message;
     std::unique_ptr<TLSContext> tls;
     enum class TLSState { Uninit, Want, Ok, WaitCertCb } tls_state = TLSState::Uninit;
 
@@ -90,13 +88,11 @@ public:
         meta     = 0x0008,
     };
 
-    // TODO RZ: We need find a better way to give access of STRAUTHID_AUTH_ERROR_MESSAGE to SocketTransport
     SocketTransport(Name name, unique_fd sck, chars_view ip_address, int port,
                     std::chrono::milliseconds connection_establishment_timeout,
                     std::chrono::milliseconds tcp_user_timeout,
                     std::chrono::milliseconds recv_timeout,
-                    Verbose verbose,
-                    std::string *error_message = nullptr);
+                    Verbose verbose);
 
     ~SocketTransport() override;
 

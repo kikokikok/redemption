@@ -34,7 +34,6 @@ class ServerNotifier;
     bool /*ensure_server_certificate_exists*/,
     ServerNotifier& /*server_notifier*/,
     const char* /*certif_path*/,
-    std::string* /*error_message*/,
     const char* /*ip_address*/,
     int /*port*/)
 {

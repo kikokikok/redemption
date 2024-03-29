@@ -149,7 +149,6 @@ public:
       , SocketTransport::Name name
       , unique_fd sck
       , SocketTransport::Verbose verbose
-      , std::string * error_message
       , ModRdpUseFailureSimulationSocketTransport use_failure_simulation_socket_transport
     )
     : events_guard(events)
@@ -169,8 +168,7 @@ public:
                     connection_establishment_timeout,
                     tcp_user_timeout,
                     recv_timeout,
-                    verbose,
-                    error_message
+                    verbose
                 );
             }
 
@@ -188,8 +186,7 @@ public:
                 connection_establishment_timeout,
                 tcp_user_timeout,
                 recv_timeout,
-                verbose,
-                error_message
+                verbose
             );
         }())
     {}
@@ -268,7 +265,6 @@ public:
       , SocketTransport::Name name
       , unique_fd sck
       , SocketTransport::Verbose verbose
-      , std::string * error_message
       , EventContainer & events
       , SessionLogApi& session_log
       , gdi::GraphicApi & gd
@@ -285,7 +281,7 @@ public:
       , ModRdpUseFailureSimulationSocketTransport use_failure_simulation_socket_transport
       , TransportWrapperFnView& transport_wrapper_fn
     )
-    : RdpData(events, ini, name, std::move(sck), verbose, error_message, use_failure_simulation_socket_transport)
+    : RdpData(events, ini, name, std::move(sck), verbose, use_failure_simulation_socket_transport)
     , mod_rdp(transport_wrapper_fn(this->get_transport()), gd
         , osd, events, session_log, front, info, redir_info, gen
         , channels_authorizations, mod_rdp_params, tls_config
@@ -894,7 +890,6 @@ ModPack create_mod_rdp(
         "RDP Target"_sck_name,
         std::move(client_sck),
         safe_cast<SocketTransport::Verbose>(ini.get<cfg::debug::sck_mod>()),
-        &ini.get_mutable_ref<cfg::context::auth_error_message>(),
         events,
         session_log,
         host_mod ? host_mod->proxy_gd() : drawable,

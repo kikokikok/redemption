@@ -52,7 +52,7 @@ WsTransport::WsTransport(
     std::chrono::milliseconds tcp_user_timeout,
     std::chrono::milliseconds recv_timeout,
     UseTls use_tls, TlsOptions tls_options,
-    Verbose verbose, std::string * error_message)
+    Verbose verbose)
 : SocketTransport(name,
                   std::move(sck),
                   ip_address,
@@ -60,8 +60,7 @@ WsTransport::WsTransport(
                   connection_establishment_timeout,
                   tcp_user_timeout,
                   recv_timeout,
-                  verbose,
-                  error_message)
+                  verbose)
 , state(use_tls == UseTls::No ? State::HttpHeader : State::StartTls)
 , tls_options(std::move(tls_options))
 {}

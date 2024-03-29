@@ -41,7 +41,7 @@ public:
         std::chrono::milliseconds tcp_user_timeout,
         std::chrono::milliseconds recv_timeout,
         UseTls use_tls, TlsOptions tls_options,
-        Verbose verbose, std::string * error_message = nullptr);
+        Verbose verbose);
 
     bool disconnect() override;
 

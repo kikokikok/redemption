@@ -252,8 +252,8 @@ private:
             std::chrono::milliseconds(1000),
             std::chrono::milliseconds::zero(),
             std::chrono::milliseconds(1000),
-            SocketTransport::Verbose()/*TODO debug::session_sharing_front*/,
-            nullptr)
+            SocketTransport::Verbose()/*TODO debug::session_sharing_front*/
+        )
         , Front(event_container, null_acl_report,
             *this, rnd, get_ini(), cctx,
             Front::GuestParameters{

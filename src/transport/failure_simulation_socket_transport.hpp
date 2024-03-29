@@ -27,7 +27,6 @@
 class FailureSimulationSocketTransport final : public SocketTransport
 {
 public:
-    // TODO RZ: We need find a better way to give access of STRAUTHID_AUTH_ERROR_MESSAGE to SocketTransport
     FailureSimulationSocketTransport(
       bool simulate_read_failure,
       Name name,
@@ -37,16 +36,14 @@ public:
       std::chrono::milliseconds connection_establishment_timeout,
       std::chrono::milliseconds tcp_user_timeout,
       std::chrono::milliseconds recv_timeout,
-      Verbose verbose,
-      std::string *error_message = nullptr)
+      Verbose verbose)
     : SocketTransport(name,
                       std::move(sck),
                       ip_address, port,
                       connection_establishment_timeout,
                       tcp_user_timeout,
                       recv_timeout,
-                      verbose,
-                      error_message)
+                      verbose)
     , simulate_read_failure(simulate_read_failure)
     {}
 
