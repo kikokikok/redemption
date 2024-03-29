@@ -128,70 +128,82 @@ void SocketTransport::enable_server_tls(const char * certificate_password, TlsCo
 
 Transport::TlsResult SocketTransport::enable_client_tls(ServerNotifier & server_notifier, TlsConfig const& tls_config, AnonymousTls anonymous_tls)
 {
-    switch (this->tls_state) {
-        case TLSState::Uninit:
-            LOG(LOG_INFO, "Client TLS start");
-            this->tls = std::make_unique<TLSContext>();
-            if (!this->tls->enable_client_tls_start(this->sck, tls_config)) {
-                return Transport::TlsResult::Fail;
-            }
-            this->tls_state = TLSState::Want;
-            [[fallthrough]];
-        case TLSState::Want: {
-            Transport::TlsResult ret = this->tls->enable_client_tls_loop();
-            switch (ret) {
-                case TlsResult::Fail:
-                    this->tls.reset();
-                    break;
-                case TlsResult::Want:
-                case TlsResult::WaitExternalEvent:
-                    break;
-                case Transport::TlsResult::Ok: {
-                    try {
+    auto process = [&, this] () -> TlsResult {
+        switch (this->tls_state) {
+            case TLSState::Uninit:
+                LOG(LOG_INFO, "Client TLS start");
+                this->tls = std::make_unique<TLSContext>();
+                if (!this->tls->enable_client_tls_start(this->sck, tls_config)) {
+                    return TlsResult::Fail;
+                }
+                this->tls_state = TLSState::Want;
+                [[fallthrough]];
+            case TLSState::Want: {
+                TlsResult ret = this->tls->enable_client_tls_loop();
+                switch (ret) {
+                    case TlsResult::Fail:
+                        this->tls.reset();
+                        break;
+                    case TlsResult::Want:
+                    case TlsResult::WaitExternalEvent:
+                        break;
+                    case TlsResult::Ok: {
                         ret = this->tls->check_certificate(
                             server_notifier,
                             this->ip_address, this->port, bool(anonymous_tls));
-
-                        if (ret == Transport::TlsResult::WaitExternalEvent) {
-                            this->tls_state = TLSState::WaitCertCb;
-                            return ret;
+                        switch (ret) {
+                            case TlsResult::Ok:
+                                LOG(LOG_INFO, "Socketenable_client_tls() done");
+                                this->tls_state = TLSState::Ok;
+                                break;
+                            case TlsResult::Want:
+                            case TlsResult::Fail:
+                                return TlsResult::Fail;
+                            case TlsResult::WaitExternalEvent:
+                                this->tls_state = TLSState::WaitCertCb;
                         }
-                        assert(ret != Transport::TlsResult::Want);
                     }
-                    catch (...) {
-                        this->tls_state = TLSState::Uninit;
-                        // Disconnect tls if needed
-                        this->tls.reset();
-                        LOG(LOG_ERR, "SocketTransport::enable_client_tls() failed");
-                        throw;
-                    }
-                    LOG(LOG_INFO, "SocketTransport::enable_client_tls() done");
-                    this->tls_state = TLSState::Ok;
                 }
+                return ret;
             }
-            return ret;
+            case TLSState::Ok:
+                return TlsResult::Fail;
+            case TLSState::WaitCertCb:
+                switch (this->tls->certificate_external_validation(
+                    server_notifier, this->ip_address, this->port
+                )) {
+                    case TlsResult::Ok:
+                        LOG(LOG_INFO, "Socketenable_client_tls() done");
+                        this->tls_state = TLSState::Ok;
+                        return TlsResult::Ok;
+                    case TlsResult::Fail:
+                    case TlsResult::Want:
+                    case TlsResult::WaitExternalEvent:
+                        break;
+                }
+                return TlsResult::Fail;
         }
-        case TLSState::Ok:
-            return Transport::TlsResult::Fail;
-        case TLSState::WaitCertCb:
-            switch (this->tls->certificate_external_validation(
-                server_notifier, this->ip_address, this->port
-            )) {
-                case Transport::TlsResult::Ok:
-                    LOG(LOG_INFO, "SocketTransport::enable_client_tls() done");
-                    this->tls_state = TLSState::Ok;
-                    return Transport::TlsResult::Ok;
-                case Transport::TlsResult::Fail:
-                case Transport::TlsResult::Want:
-                case Transport::TlsResult::WaitExternalEvent:
-                    break;
-            }
-            this->tls.reset();
-            this->tls_state = TLSState::Uninit;
-            LOG(LOG_ERR, "SocketTransport::enable_client_tls() failed");
-            return Transport::TlsResult::Fail;
+        REDEMPTION_UNREACHABLE();
+    };
+
+    auto reset_tls = [this]{
+        this->tls_state = TLSState::Uninit;
+        // Disconnect tls if needed
+        this->tls.reset();
+        LOG(LOG_ERR, "SocketTransport::enable_client_tls() failed");
+    };
+
+    try {
+        auto res = process();
+        if (res == TlsResult::Fail) {
+            reset_tls();
+        }
+        return res;
     }
-    REDEMPTION_UNREACHABLE();
+    catch (...) {
+        reset_tls();
+        throw;
+    }
 }
 
 bool SocketTransport::disconnect()

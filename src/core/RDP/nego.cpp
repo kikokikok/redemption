@@ -376,7 +376,7 @@ static bool enable_client_tls(OutTransport trans, ServerNotifier& notifier, TlsC
         case Transport::TlsResult::Want:
             return false;
         case Transport::TlsResult::Fail:
-            LOG(LOG_ERR, "enable_client_tls fail");
+            LOG(LOG_ERR, "RdpNego::enable_client_tls fail");
             break;
         case Transport::TlsResult::Ok:
             break;
