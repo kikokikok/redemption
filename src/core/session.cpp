@@ -329,7 +329,7 @@ private:
     EndSessionResult end_session_exception(Error const& e, Inifile & ini, ModFactory const& mod_factory)
     {
         if (e.id == ERR_RAIL_LOGON_FAILED_OR_WARNING){
-            ini.set_acl<cfg::context::session_probe_launch_error_message>(local_err_msg(e, language(ini)));
+            ini.set_acl<cfg::context::session_probe_launch_error_message>(e.errmsg());
         }
 
         if (e.id == ERR_SESSION_PROBE_LAUNCH
@@ -351,7 +351,6 @@ private:
                 ini.set<cfg::session_probe::enable_session_probe>(false);
                 return EndSessionResult::retry;
             }
-            this->ini.set<cfg::context::auth_error_message>(local_err_msg(e, language(ini)));
             return EndSessionResult::close_box;
         }
 
@@ -382,37 +381,27 @@ private:
             }
             else {
                 LOG(LOG_ERR, "Start Session Failed: forbidden redirection = %s", e.errmsg());
-                this->ini.set<cfg::context::auth_error_message>(local_err_msg(e, language(ini)));
                 return EndSessionResult::close_box;
             }
         }
 
         if (e.id == ERR_SESSION_CLOSE_ENDDATE_REACHED){
             LOG(LOG_INFO, "Close because disconnection time reached");
-            this->ini.set<cfg::context::auth_error_message>(TR(trkeys::session_out_time, language(this->ini)));
             return EndSessionResult::close_box;
         }
 
         if (e.id == ERR_MCS_APPID_IS_MCS_DPUM){
             LOG(LOG_INFO, "Remote Session Closed by User");
-            this->ini.set<cfg::context::auth_error_message>(TR(trkeys::end_connection, language(this->ini)));
             return EndSessionResult::close_box;
         }
 
         if (e.id == ERR_SESSION_CLOSE_ACL_KEEPALIVE_MISSED) {
             LOG(LOG_INFO, "Close because of missed ACL keepalive");
-            this->ini.set<cfg::context::auth_error_message>(TR(trkeys::miss_keepalive, language(this->ini)));
             return EndSessionResult::close_box;
         }
 
         if (e.id == ERR_SESSION_CLOSE_USER_INACTIVITY) {
             LOG(LOG_INFO, "Close because of user Inactivity");
-            this->ini.set<cfg::context::auth_error_message>(TR(trkeys::close_inactivity, language(this->ini)));
-            return EndSessionResult::close_box;
-        }
-
-        if (e.id == ERR_SESSION_CLOSE_MODULE_NEXT) {
-            LOG(LOG_INFO, "Acl confirmed user close");
             return EndSessionResult::close_box;
         }
 
@@ -439,7 +428,6 @@ private:
             (mod_factory.mod().server_error_encountered() ? "Yes" : "No")
             );
 
-        this->ini.set<cfg::context::auth_error_message>(local_err_msg(e, language(ini)));
         return EndSessionResult::close_box;
     }
 
@@ -697,12 +685,6 @@ private:
         SessionFront & front, EventManager& event_manager, PerformAutomaticReconnection perform_automatic_reconnection)
     {
         LOG(LOG_INFO, "Retry RDP");
-
-        if (mod_factory.mod_name() != ModuleName::RDP) {
-            LOG(LOG_ERR, "Previous module is %s, RDP is expected",
-                get_module_name(mod_factory.mod_name()));
-            throw Error(ERR_SESSION_CLOSE_MODULE_NEXT);
-        }
 
         log_siem::set_user(this->ini.get<cfg::globals::auth_user>());
 
@@ -1362,11 +1344,15 @@ private:
                     switch (end_session_exception(e, ini, mod_factory))
                     {
                     case EndSessionResult::close_box:
+                        this->ini.set<cfg::context::auth_error_message>(
+                            local_err_msg(e, language(ini)));
+
                         if (ini.get<cfg::internal_mod::enable_close_box>()) {
                             if (!is_close_module(mod_factory.mod_name())) {
                                 if (mod_factory.is_connected()) {
                                     this->ini.set_acl<cfg::context::module>(ModuleName::close);
                                 }
+
                                 this->next_backend_module(
                                     ModuleName::close, secondary_session, mod_factory,
                                     inactivity, keepalive, front, guest_ctx,

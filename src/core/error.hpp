@@ -185,7 +185,6 @@
     fv(ERR_SESSION_CLOSE_USER_INACTIVITY, 24500)             \
     fv(ERR_SESSION_CLOSE_ACL_KEEPALIVE_MISSED, 24502)        \
     f(ERR_SESSION_CLOSE_ENDDATE_REACHED)                     \
-    f(ERR_SESSION_CLOSE_MODULE_NEXT)                         \
                                                              \
     fv(ERR_SSL_CALL_FAILED, 25000)                           \
     f(ERR_SSL_CALL_HMAC_INIT_FAILED)                         \
