@@ -168,6 +168,8 @@ namespace trkeys
     TR_KV(err_rdp_channel_connection, "Fail during channels connection.");
     TR_KV(err_rdp_get_license, "Failed while trying to get licence.");
     TR_KV(err_mod_rdp_connected, "Fail while connecting session on the target.");
+
+    // OSD for ICAP with cliprdr
     TR_KV(file_verification_wait, "File being analyzed: ");
     TR_KV(file_verification_accepted, "Valid file: ");
     TR_KV(file_verification_rejected, "Invalid file: ");

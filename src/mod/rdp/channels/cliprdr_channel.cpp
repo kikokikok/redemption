@@ -169,8 +169,7 @@ struct ClipboardVirtualChannel::OSD::D
             self.osd.event_ref.set_timeout_or_create_event(
                 self.osd.delay, self.osd.events_container, "FileVerifOSD", &self.osd,
                 [&self, &filename](Event& event){
-                    self.osd.osd_api.display_osd_message(str_concat(
-                        TR(trkeys::file_verification_wait, self.osd.lang), filename));
+                    show_message(self, filename, trkeys::file_verification_wait);
                     event.garbage = true;
                 }
             );
@@ -187,17 +186,17 @@ struct ClipboardVirtualChannel::OSD::D
         std::string_view filename, bool is_accepted)
     {
         if (self.osd.msg_type == OSD::MsgType::WaitValidator) {
-            if (not is_accepted) {
-                self.osd.osd_api.display_osd_message(str_concat(
-                    TR(trkeys::file_verification_rejected, self.osd.lang), filename));
-            }
-            else if (!self.osd.event_ref.has_event()) {
-                self.osd.osd_api.display_osd_message(str_concat(
-                    TR(trkeys::file_verification_accepted, self.osd.lang), filename));
-            }
+            show_message(self, filename, is_accepted
+                ? trkeys::file_verification_accepted
+                : trkeys::file_verification_rejected);
             self.osd.event_ref.garbage();
             self.osd.msg_type = OSD::MsgType::Nothing;
         }
+    }
+
+    static void show_message(ClipboardVirtualChannel& self, chars_view filename, TrKey trkey)
+    {
+        self.osd.osd_api.display_osd_message(str_concat(TR(trkey, self.osd.lang), filename));
     }
 };
 
