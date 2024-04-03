@@ -27,11 +27,12 @@
 #include "configs/config.hpp"
 #include "core/log_id.hpp"
 #include "utils/log.hpp"
-#include "utils/translation.hpp"
+#include "utils/trkeys.hpp"
 #include "utils/sugar/unique_fd.hpp"
 #include "utils/log_siem.hpp"
 #include "utils/netutils.hpp"
 #include "utils/strutils.hpp"
+#include "utils/error_message_ctx.hpp"
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -41,13 +42,12 @@
 
 
 inline unique_fd connect_to_target_host(
-    Inifile & ini, SessionLogApi& session_log,
-    trkeys::TrKey const& authentification_fail, bool enable_ipv6,
+    Inifile & ini, SessionLogApi& session_log, ErrorMessageCtx& err_msg_ctx,
+    TrKey const& authentification_fail, bool enable_ipv6,
     std::chrono::milliseconds connection_establishment_timeout,
     std::chrono::milliseconds tcp_user_timeout)
 {
-    auto throw_error = [&ini, &session_log](char const* error_message, int id) {
-
+    auto throw_error = [&ini, &session_log, &err_msg_ctx](char const* error_message, int id) {
         log_siem::target_connection_failed(
             ini.get<cfg::globals::target_user>().c_str(),
             ini.get<cfg::context::session_id>().c_str(),
@@ -57,7 +57,7 @@ inline unique_fd connect_to_target_host(
 
         session_log.log6(LogId::CONNECTION_FAILED, {});
 
-        ini.set<cfg::context::auth_error_message>(TR(trkeys::target_fail, language(ini)));
+        err_msg_ctx.set_msg(trkeys::target_fail);
 
         LOG(LOG_ERR, "%s", (id == 1)
             ? "Failed to connect to remote TCP host (1)"
@@ -130,7 +130,7 @@ inline unique_fd connect_to_target_host(
         throw_error(error_message, 2);
     }
 
-    ini.set<cfg::context::auth_error_message>(TR(authentification_fail, language(ini)));
+    err_msg_ctx.set_msg(authentification_fail);
     ini.set<cfg::context::ip_target>(resolved_ip_addr);
     return client_sck;
 }

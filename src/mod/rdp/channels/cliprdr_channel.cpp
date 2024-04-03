@@ -24,16 +24,17 @@ Author(s): Jonathan Poelen, Christophe Grosjean, Raphael Zhou
 #include "mod/rdp/channels/cliprdr_channel_send_and_receive.hpp"
 #include "capture/fdx_capture.hpp"
 #include "core/error.hpp"
-#include "utils/timebase.hpp"
 #include "core/log_id.hpp"
 #include "core/RDP/clipboard.hpp"
 #include "utils/log.hpp"
+#include "utils/timebase.hpp"
 #include "utils/sugar/numerics/safe_conversions.hpp"
 #include "utils/sugar/unordered_erase.hpp"
 #include "utils/sugar/not_null_ptr.hpp"
 #include "utils/sugar/int_to_chars.hpp"
 #include "utils/sugar/static_array_to_hexadecimal_chars.hpp"
 #include "utils/translation.hpp"
+#include "utils/trkeys.hpp"
 #include "gdi/osd_api.hpp"
 
 #include <cassert>

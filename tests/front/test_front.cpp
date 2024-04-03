@@ -37,21 +37,21 @@
 // Uncomment the code block below to generate testing data.
 //include "transport/socket_transport.hpp"
 #include "core/client_info.hpp"
+#include "core/guest_ctx.hpp"
+#include "core/events.hpp"
 #include "utils/theme.hpp"
 #include "utils/redirection_info.hpp"
-#include "utils/sugar/static_array_to_hexadecimal_chars.hpp"
+#include "utils/error_message_ctx.hpp"
 #include "utils/sugar/int_to_chars.hpp"
+#include "utils/sugar/static_array_to_hexadecimal_chars.hpp"
 
 #include "mod/null/null.hpp"
 #include "client/common/new_mod_rdp.hpp"
 #include "mod/rdp/rdp_params.hpp"
 #include "mod/rdp/mod_rdp_factory.hpp"
-#include "core/events.hpp"
-#include "utils/timebase.hpp"
 #include "core/channels_authorizations.hpp"
 #include "gdi/osd_api.hpp"
 #include "front/front.hpp"
-#include "core/guest_ctx.hpp"
 #include "capture/cryptofile.hpp"
 
 #include <cstring>
@@ -226,9 +226,10 @@ RED_AUTO_TEST_CASE(TestFront)
 
     TlsConfig tls_config{};
     RedirectionInfo redir_info;
+    ErrorMessageCtx err_msg_ctx;
 
     auto mod = new_mod_rdp(
-        t, front.gd(), osd, events, session_log,
+        t, front.gd(), osd, events, session_log, err_msg_ctx,
         front, info, redir_info, gen2, channels_authorizations, mod_rdp_params,
         tls_config, license_store, ini, file_validator_service,
         mod_rdp_factory);
@@ -253,7 +254,7 @@ RED_AUTO_TEST_CASE(TestFront)
     RED_CHECK_EQ(count, n);
     RED_CHECK(mod->is_up_and_running());
     RED_CHECK(!front.is_up_and_running());
-//    front.dump_png("trace_w2008_");
+    // front.dump_png("trace_w2008_");
 }
 
 namespace TestFrontData

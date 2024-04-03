@@ -30,7 +30,7 @@
 #include "acl/auth_api.hpp"
 #include "acl/license_api.hpp"
 #include "configs/config.hpp"
-#include "utils/timebase.hpp"
+#include "core/events.hpp"
 #include "core/client_info.hpp"
 #include "core/channels_authorizations.hpp"
 #include "client/common/new_mod_rdp.hpp"
@@ -38,6 +38,7 @@
 #include "mod/rdp/mod_rdp_factory.hpp"
 #include "utils/theme.hpp"
 #include "utils/redirection_info.hpp"
+#include "utils/error_message_ctx.hpp"
 #include "gdi/osd_api.hpp"
 
 //#define GENERATE_TESTING_DATA
@@ -99,6 +100,7 @@ namespace
 
         EventManager event_manager;
         NullSessionLog session_log;
+        ErrorMessageCtx err_msg_ctx;
 
         FakeFront front{info.screen_info};
 
@@ -196,7 +198,7 @@ namespace
         {
             auto mod = ::new_mod_rdp(
                 trans, front.gd(), osd, event_manager.get_events(),
-                session_log, front, info, redir_info, gen, channels_authorizations,
+                session_log, err_msg_ctx, front, info, redir_info, gen, channels_authorizations,
                 get_mod_rdp_params(), tls_config, license_store, ini,
                 nullptr, mod_rdp_factory);
             LOG(LOG_INFO, "--- new mod");

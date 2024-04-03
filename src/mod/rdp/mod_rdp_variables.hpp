@@ -27,7 +27,6 @@
 #include "configs/config_access.hpp"
 
 using ModRdpVariables = vcfg::variables<
-    vcfg::var<cfg::context::auth_error_message,                 vcfg::accessmode::set>,
     vcfg::var<cfg::context::auth_channel_target,                vcfg::accessmode::set>,
     vcfg::var<cfg::context::auth_notify,                        vcfg::accessmode::set>,
     vcfg::var<cfg::context::auth_notify_rail_exec_flags,        vcfg::accessmode::set>,

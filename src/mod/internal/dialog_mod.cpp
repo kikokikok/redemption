@@ -24,6 +24,7 @@
 #include "mod/internal/dialog_mod.hpp"
 #include "mod/internal/widget/edit.hpp"
 #include "utils/translation.hpp"
+#include "utils/trkeys.hpp"
 
 namespace
 {

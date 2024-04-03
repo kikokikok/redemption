@@ -101,8 +101,6 @@ RED_AUTO_TEST_CASE(TestIniAssign)
     ini.set<cfg::context::auth_channel_answer>(s);
     ini.set_acl<cfg::context::auth_channel_target>(cs);
     ini.set_acl<cfg::context::auth_channel_target>(s);
-    ini.set<cfg::context::auth_error_message>(cs);
-    ini.set<cfg::context::auth_error_message>(s);
     ini.set<cfg::context::authentication_challenge>(true);
     ini.set_acl<cfg::context::comment>(cs);
     ini.set_acl<cfg::context::comment>(s);

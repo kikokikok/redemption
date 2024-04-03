@@ -195,8 +195,6 @@ RED_AUTO_TEST_CASE(TestConfigDefaultEmpty)
     RED_CHECK_EQUAL(600,   ini.get<cfg::context::opt_height>());
     RED_CHECK_EQUAL(ColorDepth::depth24, ini.get<cfg::context::opt_bpp>());
 
-    RED_CHECK_EQUAL("",    ini.get<cfg::context::auth_error_message>());
-
     RED_CHECK_EQUAL(false, ini.is_asked<cfg::context::selector>());
     RED_CHECK_EQUAL(false, ini.is_asked<cfg::context::selector_current_page>());
     RED_CHECK_EQUAL(false, ini.is_asked<cfg::context::selector_lines_per_page>());

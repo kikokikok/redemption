@@ -24,6 +24,7 @@
 #include "keyboard/keymap.hpp"
 
 #include "utils/translation.hpp"
+#include "utils/trkeys.hpp"
 #include "utils/theme.hpp"
 
 

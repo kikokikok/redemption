@@ -27,8 +27,6 @@
 #include "utils/utf.hpp"
 #include "core/stream_throw_helpers.hpp"
 
-#include <cstring>
-
 
 namespace RDP {
 
@@ -438,11 +436,9 @@ struct LogonInfoVersion2_Recv {
 // Pad (576 bytes): 576 bytes. Padding. Values in this field MUST be ignored.
 
 struct PlainNotify_Recv {
-    uint8_t  Pad[558];
+    uint8_t  Pad[558] {};
 
     explicit PlainNotify_Recv(InStream & stream) {
-        memset(Pad, 0, sizeof(Pad));
-
         // Pad(576)
         ::check_throw(stream, 576, "PlainNotify_Recv Plain Notify", ERR_RDP_DATA_TRUNCATED);
 
@@ -728,38 +724,32 @@ struct LogonErrorsInfo_Recv
                 ErrorNotificationDataToMessage(this->ErrorNotificationData));
         }
         else {
-                LOG(LOG_INFO,
-                    "ErrorNotificationType=%s(0x%08X) \"%s\" SessionIdentifier=%u",
-                    ErrorNotificationTypeToString(this->ErrorNotificationType),
-                    this->ErrorNotificationType,
-                    ErrorNotificationTypeToMessage(this->ErrorNotificationType),
-                    this->ErrorNotificationData);
+            LOG(LOG_INFO,
+                "ErrorNotificationType=%s(0x%08X) \"%s\" SessionIdentifier=%u",
+                ErrorNotificationTypeToString(this->ErrorNotificationType),
+                this->ErrorNotificationType,
+                ErrorNotificationTypeToMessage(this->ErrorNotificationType),
+                this->ErrorNotificationData);
         }
     }
 
-    static const char * ErrorNotificationTypeToString(
-            uint32_t ErrorNotificationType) {
+    static const char * ErrorNotificationTypeToString(uint32_t ErrorNotificationType)
+    {
         switch (ErrorNotificationType) {
-        case LOGON_MSG_DISCONNECT_REFUSED:
-            return "LOGON_MSG_DISCONNECT_REFUSED";
-        case LOGON_MSG_NO_PERMISSION:
-            return "LOGON_MSG_NO_PERMISSION";
-        case LOGON_MSG_BUMP_OPTIONS:
-            return "LOGON_MSG_BUMP_OPTIONS";
-        case LOGON_MSG_SESSION_RECONNECT:
-            return "LOGON_MSG_SESSION_RECONNECT";
-        case LOGON_MSG_SESSION_TERMINATE:
-            return "LOGON_MSG_SESSION_TERMINATE";
-        case LOGON_MSG_SESSION_CONTINUE:
-            return "LOGON_MSG_SESSION_CONTINUE";
+        case LOGON_MSG_DISCONNECT_REFUSED: return "LOGON_MSG_DISCONNECT_REFUSED";
+        case LOGON_MSG_NO_PERMISSION: return "LOGON_MSG_NO_PERMISSION";
+        case LOGON_MSG_BUMP_OPTIONS: return "LOGON_MSG_BUMP_OPTIONS";
+        case LOGON_MSG_SESSION_RECONNECT: return "LOGON_MSG_SESSION_RECONNECT";
+        case LOGON_MSG_SESSION_TERMINATE: return "LOGON_MSG_SESSION_TERMINATE";
+        case LOGON_MSG_SESSION_CONTINUE: return "LOGON_MSG_SESSION_CONTINUE";
 
         default:
             return "<Unexpected>";
         }
     }
 
-    static const char * ErrorNotificationTypeToMessage(
-            uint32_t ErrorNotificationType) {
+    static const char * ErrorNotificationTypeToMessage(uint32_t ErrorNotificationType)
+    {
         switch (ErrorNotificationType) {
         case LOGON_MSG_DISCONNECT_REFUSED:
             return "The \"Disconnection Refused\" dialog is being displayed by Winlogon.";
@@ -779,25 +769,21 @@ struct LogonErrorsInfo_Recv
         }
     }
 
-    static const char * ErrorNotificationDataToString(
-            uint32_t ErrorNotificationData) {
+    static const char * ErrorNotificationDataToString(uint32_t ErrorNotificationData)
+    {
         switch (ErrorNotificationData) {
-        case LOGON_FAILED_BAD_PASSWORD:
-            return "LOGON_FAILED_BAD_PASSWORD";
-        case LOGON_FAILED_UPDATE_PASSWORD:
-            return "LOGON_FAILED_UPDATE_PASSWORD";
-        case LOGON_FAILED_OTHER:
-            return "LOGON_FAILED_OTHER";
-        case LOGON_WARNING:
-            return "LOGON_WARNING";
+        case LOGON_FAILED_BAD_PASSWORD: return "LOGON_FAILED_BAD_PASSWORD";
+        case LOGON_FAILED_UPDATE_PASSWORD: return "LOGON_FAILED_UPDATE_PASSWORD";
+        case LOGON_FAILED_OTHER: return "LOGON_FAILED_OTHER";
+        case LOGON_WARNING: return "LOGON_WARNING";
 
         default:
             return "<Unexpected>";
         }
     }
 
-    static const char * ErrorNotificationDataToMessage(
-            uint32_t ErrorNotificationType) {
+    static const char * ErrorNotificationDataToMessage(uint32_t ErrorNotificationType)
+    {
         switch (ErrorNotificationType) {
         case LOGON_FAILED_BAD_PASSWORD:
             return "The logon process failed. "
@@ -817,26 +803,6 @@ struct LogonErrorsInfo_Recv
 
         default:
             return "Unexpected Error Notification Data.";
-        }
-    }
-
-    static const char * ErrorNotificationDataToShortMessage(
-            uint32_t ErrorNotificationType) {
-        switch (ErrorNotificationType) {
-        case LOGON_FAILED_BAD_PASSWORD:
-            return "The logon process failed. "
-                "The logon credentials which were supplied are invalid.";
-        case LOGON_FAILED_UPDATE_PASSWORD:
-            return "The logon process failed. "
-                "The user cannot continue with the logon process until the "
-                "password is changed.";
-        case LOGON_FAILED_OTHER:
-            return "The logon process failed.";
-        case LOGON_WARNING:
-            return "The logon process has displayed a warning.";
-
-        default:
-            return "Unexpected Error Notification Type.";
         }
     }
 };  // struct LogonErrorsInfo_Recv

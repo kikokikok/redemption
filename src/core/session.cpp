@@ -43,6 +43,8 @@
 #include "utils/local_err_msg.hpp"
 #include "utils/monotonic_clock.hpp"
 #include "utils/to_timeval.hpp"
+#include "utils/error_message_ctx.hpp"
+#include "utils/trkeys.hpp"
 #include "system/urandom.hpp"
 
 #include <cassert>
@@ -464,6 +466,7 @@ private:
     void next_backend_module(
         ModuleName next_state,
         SecondarySession& secondary_session,
+        ErrorMessageCtx& err_msg_ctx,
         ModFactory& mod_factory,
         Inactivity& inactivity,
         KeepAlive& keepalive,
@@ -533,7 +536,7 @@ private:
                             secondary_session.open_secondary_session(secondary_session_type));
                         break;
                 }
-                this->ini.set<cfg::context::auth_error_message>("");
+                err_msg_ctx.clear();
                 set_inactivity_timeout(inactivity, ini);
                 return;
             }
@@ -681,8 +684,9 @@ private:
     }
 
     bool retry_rdp(
-        SecondarySession & secondary_session, ModFactory & mod_factory,
-        SessionFront & front, EventManager& event_manager, PerformAutomaticReconnection perform_automatic_reconnection)
+        SecondarySession & secondary_session, ErrorMessageCtx & err_msg_ctx,
+        ModFactory & mod_factory, SessionFront & front, EventManager& event_manager,
+        PerformAutomaticReconnection perform_automatic_reconnection)
     {
         LOG(LOG_INFO, "Retry RDP");
 
@@ -702,7 +706,7 @@ private:
         try {
             front.target_connection_start_time = MonotonicTimePoint::clock::now();
             mod_factory.create_rdp_mod(session_log, perform_automatic_reconnection);
-            this->ini.set<cfg::context::auth_error_message>("");
+            err_msg_ctx.clear();
             return true;
         }
         catch (Error const& /*error*/) {
@@ -848,10 +852,14 @@ private:
     };
 
     inline EndLoopState main_loop(
-        int auth_sck, EventManager& event_manager,
-        CryptoContext& cctx, URandom& rnd,
+        int auth_sck,
+        EventManager& event_manager,
+        ErrorMessageCtx& err_msg_ctx,
+        CryptoContext& cctx,
+        URandom& rnd,
         SocketTransport& front_trans,
-        SessionFront& front, GuestCtx& guest_ctx,
+        SessionFront& front,
+        GuestCtx& guest_ctx,
         ModFactory& mod_factory
     )
     {
@@ -1142,14 +1150,12 @@ private:
                     if (has_field(cfg::context::rejected())) {
                         LOG(LOG_ERR, "Connection is rejected by Authentifier! Reason: %s",
                             this->ini.get<cfg::context::rejected>().c_str());
-                        this->ini.set<cfg::context::auth_error_message>(
-                            this->ini.get<cfg::context::rejected>());
+                        err_msg_ctx.set_msg(this->ini.get<cfg::context::rejected>());
                         next_module = ModuleName::close;
                         back_event = BACK_EVENT_NEXT;
                     }
                     else if (has_field(cfg::context::disconnect_reason())) {
-                        this->ini.set<cfg::context::auth_error_message>(
-                            this->ini.get<cfg::context::disconnect_reason>());
+                        err_msg_ctx.set_msg(this->ini.get<cfg::context::disconnect_reason>());
                         this->ini.set_acl<cfg::context::disconnect_reason_ack>(true);
                         back_event = std::max(BACK_EVENT_NEXT, mod_factory.mod().get_mod_signal());
                     }
@@ -1226,7 +1232,7 @@ private:
 
                     this->next_backend_module(
                         std::exchange(next_module, ModuleName::UNKNOWN),
-                        secondary_session, mod_factory, inactivity,
+                        secondary_session, err_msg_ctx, mod_factory, inactivity,
                         keepalive, front, guest_ctx, event_manager);
                 }
 
@@ -1262,15 +1268,13 @@ private:
                 {
                 case LoopState::AclSend:
                     LOG(LOG_ERR, "ACL SERIALIZER: %s", e.errmsg());
-                    ini.set<cfg::context::auth_error_message>(
-                        TR(trkeys::acl_fail, language(ini)));
+                    err_msg_ctx.set_msg(trkeys::acl_fail);
                     auth_trans.disconnect();
                     break;
 
                 case LoopState::AclReceive:
                     LOG(LOG_INFO, "acl_serial.incoming() Session lost");
-                    ini.set<cfg::context::auth_error_message>(
-                        TR(trkeys::manager_close_cnx, language(ini)));
+                    err_msg_ctx.set_msg(trkeys::manager_close_cnx);
                     auth_trans.disconnect();
                     break;
 
@@ -1296,7 +1300,7 @@ private:
                             );
 
                             run_session = this->retry_rdp(
-                                secondary_session, mod_factory,
+                                secondary_session, err_msg_ctx, mod_factory,
                                 front, event_manager, PerformAutomaticReconnection::Yes);
                         }
                     }
@@ -1307,7 +1311,7 @@ private:
                             LOG(LOG_INFO, "Session::Session: Automatic reconnection required. ERR_AUTOMATIC_RECONNECTION_REQUIRED");
 
                             run_session = this->retry_rdp(
-                                secondary_session, mod_factory,
+                                secondary_session, err_msg_ctx, mod_factory,
                                 front, event_manager, PerformAutomaticReconnection::Yes);
                         }
                     }
@@ -1344,8 +1348,12 @@ private:
                     switch (end_session_exception(e, ini, mod_factory))
                     {
                     case EndSessionResult::close_box:
-                        this->ini.set<cfg::context::auth_error_message>(
-                            local_err_msg(e, language(ini)));
+                        if (TrKey const* k = local_err_msg(e)) {
+                            err_msg_ctx.set_msg(*k);
+                        }
+                        else {
+                            err_msg_ctx.set_msg(e.errmsg());
+                        }
 
                         if (ini.get<cfg::internal_mod::enable_close_box>()) {
                             if (!is_close_module(mod_factory.mod_name())) {
@@ -1354,8 +1362,8 @@ private:
                                 }
 
                                 this->next_backend_module(
-                                    ModuleName::close, secondary_session, mod_factory,
-                                    inactivity, keepalive, front, guest_ctx,
+                                    ModuleName::close, secondary_session, err_msg_ctx,
+                                    mod_factory, inactivity, keepalive, front, guest_ctx,
                                     event_manager);
                                 run_session = true;
                             }
@@ -1394,14 +1402,14 @@ private:
                     // TODO: should we put some counter to avoid retrying indefinitely?
                     case EndSessionResult::retry:
                         run_session = this->retry_rdp(
-                            secondary_session, mod_factory,
+                            secondary_session, err_msg_ctx, mod_factory,
                             front, event_manager, PerformAutomaticReconnection::No);
                         break;
 
                     // TODO: should we put some counter to avoid retrying indefinitely?
                     case EndSessionResult::reconnection:
                         run_session = this->retry_rdp(
-                            secondary_session, mod_factory,
+                            secondary_session, err_msg_ctx, mod_factory,
                             front, event_manager, PerformAutomaticReconnection::Yes);
                         break;
                     }
@@ -1419,15 +1427,13 @@ private:
                 {
                     case LoopState::AclSend:
                         LOG(LOG_ERR, "ACL SERIALIZER: unknown error");
-                        ini.set<cfg::context::auth_error_message>(
-                            TR(trkeys::acl_fail, language(ini)));
+                        err_msg_ctx.set_msg(trkeys::acl_fail);
                         auth_trans.disconnect();
                         break;
 
                     case LoopState::AclReceive:
                         LOG(LOG_INFO, "acl_serial.incoming() Session lost");
-                        ini.set<cfg::context::auth_error_message>(
-                            TR(trkeys::manager_close_cnx, language(ini)));
+                        err_msg_ctx.set_msg(trkeys::manager_close_cnx);
                         auth_trans.disconnect();
                         break;
 
@@ -1484,6 +1490,8 @@ public:
         AclReport acl_report{ini};
         SessionFront front(event_manager.get_events(), acl_report, front_trans, rnd, ini, cctx);
 
+        ErrorMessageCtx err_msg_ctx;
+
         int auth_sck = INVALID_SOCKET;
 
         LOG_IF(bool(this->verbose & SessionVerbose::Trace),
@@ -1510,7 +1518,7 @@ public:
                             MonotonicTimePoint::clock::now() - sck_start_time));
                 }
                 else {
-                    ini.set<cfg::context::auth_error_message>("No authentifier available");
+                    err_msg_ctx.set_msg(trkeys::err_sesman_unavailable);
                 }
             }
         }
@@ -1542,7 +1550,7 @@ public:
         ) {
             // silent message for localhost or probe IPs for watchdog
             if (!prevent_early_log) {
-                log_siem::disconnection(ini.get<cfg::context::auth_error_message>().c_str());
+                log_siem::disconnection(err_msg_ctx.get_msg());
             }
 
             return ;
@@ -1554,7 +1562,7 @@ public:
             ModFactory mod_factory(
                 event_manager.get_events(), event_manager.get_time_base(),
                 front.get_client_info(), front, front, front.get_palette(),
-                font, ini, front.keymap, rnd, cctx);
+                font, ini, front.keymap, rnd, cctx, err_msg_ctx);
 
             GuestCtx guest_ctx;
 
@@ -1562,7 +1570,7 @@ public:
 
             if (auth_sck != INVALID_SOCKET) {
                 end_loop = this->main_loop(
-                    auth_sck, event_manager, cctx, rnd,
+                    auth_sck, event_manager, err_msg_ctx, cctx, rnd,
                     front_trans, front, guest_ctx,
                     mod_factory
                 );
@@ -1604,7 +1612,7 @@ public:
         if (!ini.is_asked<cfg::globals::host>()) {
             LOG(LOG_INFO, "Client Session Disconnected");
         }
-        log_siem::disconnection(ini.get<cfg::context::auth_error_message>().c_str());
+        log_siem::disconnection(err_msg_ctx.get_msg());
 
         front.must_be_stop_capture();
     }

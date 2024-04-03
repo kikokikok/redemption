@@ -24,6 +24,7 @@
 #include "mod/internal/widget/composite.hpp"
 #include "mod/internal/widget/button.hpp"
 #include "mod/internal/widget/edit.hpp"
+#include "configs/autogen/enums.hpp" // Language
 #include "utils/translation.hpp"
 
 #include <chrono>
@@ -69,7 +70,7 @@ public:
 
 private:
     template<class T, class... Ts>
-    void set_warning_buffer(trkeys::TrKeyFmt<T> k, Ts const&... xs);
+    void set_warning_buffer(TrKeyFmt<T> k, Ts const&... xs);
 
     void check_confirmation();
 

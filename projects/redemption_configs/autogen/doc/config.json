@@ -3015,13 +3015,6 @@
     },
     {
       "section": "context",
-      "name": "auth_error_message",
-      "type": "str",
-      "value": "",
-      "description": ""
-    },
-    {
-      "section": "context",
       "name": "selector",
       "type": "bool",
       "value": false,

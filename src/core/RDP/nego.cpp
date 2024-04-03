@@ -28,6 +28,7 @@
 #include "core/RDP/x224.hpp"
 
 #include "utils/sugar/multisz.hpp"
+#include "utils/trkeys.hpp"
 #include "utils/strutils.hpp"
 
 

@@ -21,6 +21,7 @@
 
 #include "mod/internal/widget/wab_close.hpp"
 #include "utils/theme.hpp"
+#include "utils/trkeys.hpp"
 #include "utils/strutils.hpp"
 #include "core/app_path.hpp"
 #include "core/font.hpp"

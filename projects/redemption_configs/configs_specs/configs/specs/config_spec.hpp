@@ -2882,14 +2882,6 @@ _.section("context", [&]
         .spec = proxy_to_acl(no_reset_back_to_selector),
     });
 
-    // auth_error_message is left as std::string type because SocketTransport and ReplayMod
-    // take it as argument on constructor and modify it as a std::string
-    _.member(MemberInfo{
-        .name = "auth_error_message",
-        .value = value<std::string>(),
-        .spec = no_acl,
-    });
-
     _.member(MemberInfo{
         .name = "selector",
         .value = value(false),

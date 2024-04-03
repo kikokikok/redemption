@@ -20,6 +20,7 @@ Author(s): Wallix Team
 
 #include "mod/internal/replay_mod.hpp"
 
+#include "utils/error_message_ctx.hpp"
 #include "utils/timebase.hpp"
 #include "core/events.hpp"
 
@@ -43,7 +44,7 @@ RED_AUTO_TEST_CASE(TestInteractiveTargetMod)
     TestGraphic gd(w, h);
     ScreenInfo screen_info{w, h, BitsPerPixel::BitsPP16};
     FakeFront front(screen_info);
-    std::string error_msg;
+    ErrorMessageCtx error_msg;
     bool wait_for_escape = false;
     bool replay_on_loop = false;
     bool play_video_with_corrupted_bitmap = false;

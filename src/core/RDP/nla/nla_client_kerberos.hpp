@@ -30,6 +30,7 @@
 #include "utils/fileutils.hpp"
 #include "utils/hexdump.hpp"
 #include "utils/random.hpp"
+#include "utils/trkeys.hpp"
 #include "utils/translation.hpp"
 #include "system/ssl_sha256.hpp"
 

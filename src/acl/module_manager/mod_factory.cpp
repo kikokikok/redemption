@@ -26,8 +26,11 @@
 
 #include "configs/config.hpp"
 #include "utils/strutils.hpp"
+#include "utils/trkeys.hpp"
 #include "utils/translation.hpp"
 #include "utils/load_theme.hpp"
+#include "utils/log_siem.hpp"
+#include "utils/error_message_ctx.hpp"
 #include "mod/null/null.hpp"
 #include "keyboard/keymap.hpp"
 #include "core/client_info.hpp"
@@ -68,7 +71,8 @@ ModFactory::ModFactory(
     Inifile & ini,
     Keymap & keymap,
     Random & gen,
-    CryptoContext & cctx
+    CryptoContext & cctx,
+    ErrorMessageCtx & err_msg_ctx
 )
 : events(events)
 , client_info(client_info)
@@ -79,6 +83,7 @@ ModFactory::ModFactory(
 , keymap(keymap)
 , gen(gen)
 , cctx(cctx)
+, err_msg_ctx(err_msg_ctx)
 , file_system_license_store{ app_path(AppPath::License).to_string() }
 , rail_client_execute(
     time_base, graphics, front,
@@ -103,6 +108,11 @@ ModFactory::~ModFactory()
 void ModFactory::disconnect()
 {
     if (&mod() != &no_mod) {
+        if (is_connected()) {
+            auto const& sid = ini.get<cfg::context::session_id>();
+            log_siem::target_disconnection(err_msg_ctx.get_msg(), sid.c_str());
+        }
+
         try {
             mod().disconnect();
         }
@@ -152,13 +162,16 @@ struct ModFactory::Impl
 
     static ModPack create_close_mod(ModFactory& self, bool back_to_selector)
     {
-        zstring_view auth_error_message = self.ini.get<cfg::context::auth_error_message>();
-        if (auth_error_message.empty()) {
-            auth_error_message = TR(trkeys::connection_ended, language(self.ini));
+        zstring_view message = self.err_msg_ctx.get_msg();
+        if (message.empty()) {
+            message = TR(trkeys::connection_ended, language(self.ini));
+        }
+        else if (!self.err_msg_ctx.is_translated()) {
+            message = TR(TrKey{message}, language(self.ini));
         }
 
         auto new_mod = new CloseMod(
-            auth_error_message.c_str(),
+            message.c_str(),
             self.ini,
             self.events,
             self.graphics,
@@ -225,7 +238,7 @@ void ModFactory::create_mod_replay()
         ),
         // this->client_info.screen_info.width,
         // this->client_info.screen_info.height,
-        this->ini.get_mutable_ref<cfg::context::auth_error_message>(),
+        this->err_msg_ctx,
         !this->ini.get<cfg::mod_replay::on_end_of_data>(),
         this->ini.get<cfg::mod_replay::replay_on_loop>(),
         this->ini.get<cfg::audit::play_video_with_corrupted_bitmap>(),
@@ -462,8 +475,7 @@ void ModFactory::create_login_mod()
 
 void ModFactory::create_rdp_mod(
     SessionLogApi& session_log,
-    PerformAutomaticReconnection perform_automatic_reconnection
-)
+    PerformAutomaticReconnection perform_automatic_reconnection)
 {
     this->copy_paste_ptr.reset();
     auto mod_pack = create_mod_rdp(
@@ -478,6 +490,7 @@ void ModFactory::create_rdp_mod(
         this->glyphs, this->theme,
         this->events,
         session_log,
+        err_msg_ctx,
         this->file_system_license_store,
         this->gen,
         this->cctx,
@@ -499,6 +512,7 @@ void ModFactory::create_vnc_mod(SessionLogApi& session_log)
         this->glyphs, this->theme,
         this->events,
         session_log,
+        err_msg_ctx,
         this->gen);
     Impl::set_mod(*this, ModuleName::VNC, mod_pack, true);
 }

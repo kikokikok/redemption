@@ -74,9 +74,6 @@ private:
 
 class ModVNCWithSocket final : public VncData, public mod_vnc
 {
-private:
-    Inifile & ini;
-
 public:
     ModVNCWithSocket(
         Random & rand,
@@ -110,15 +107,7 @@ public:
           clipboard_server_encoding_type, bogus_clipboard_infinite_loop,
           layout, locks, server_is_apple, send_alt_ksym, cursor_pseudo_encoding_supported,
           rail_client_execute, vnc_verbose, session_log)
-    , ini(ini)
     {}
-
-    ~ModVNCWithSocket()
-    {
-        log_siem::target_disconnection(
-            this->ini.template get<cfg::context::auth_error_message>().c_str(),
-            this->ini.template get<cfg::context::session_id>().c_str());
-    }
 };
 
 } // anonymous namespace
@@ -133,6 +122,7 @@ ModPack create_mod_vnc(
     Theme & theme,
     EventContainer& events,
     SessionLogApi& session_log,
+    ErrorMessageCtx& err_msg_ctx,
     Random & rand
     )
 {
@@ -140,7 +130,7 @@ ModPack create_mod_vnc(
 
     unique_fd client_sck = ini.get<cfg::context::tunneling_target_host>().empty()
         ? connect_to_target_host(
-            ini, session_log, trkeys::authentification_vnc_fail,
+            ini, session_log, err_msg_ctx, trkeys::authentification_vnc_fail,
             ini.get<cfg::mod_vnc::enable_ipv6>(),
             ini.get<cfg::all_target_mod::connection_establishment_timeout>(),
             ini.get<cfg::all_target_mod::tcp_user_timeout>())

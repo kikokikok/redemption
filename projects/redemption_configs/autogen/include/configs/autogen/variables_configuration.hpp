@@ -3462,14 +3462,6 @@ namespace cfg
         using mapped_type = uint16_t;
         type value { 800 };
     };
-    /// type: std::string <br/>
-    /// default: "" <br/>
-    struct context::auth_error_message {
-        static constexpr unsigned acl_proxy_communication_flags = 0b00;
-        using type = std::string;
-        using mapped_type = type;
-        type value {  };
-    };
     /// type: bool <br/>
     /// acl ⇒ proxy <br/>
     /// default: false <br/>
@@ -5431,7 +5423,6 @@ struct websocket
 
 struct context
 : cfg::context::psid
-, cfg::context::auth_error_message
 , cfg::context::selector_device_filter
 , cfg::context::selector_group_filter
 , cfg::context::selector_proto_filter

@@ -32,7 +32,8 @@ public:
                Inifile & ini,
                Keymap & keymap,
                Random & gen,
-               CryptoContext & cctx
+               CryptoContext & cctx,
+               ErrorMessageCtx & err_msg_ctx
     );
 
     ~ModFactory();
@@ -142,6 +143,8 @@ private:
     Keymap & keymap;
     Random & gen;
     CryptoContext & cctx;
+    ErrorMessageCtx & err_msg_ctx;
+
     std::unique_ptr<CopyPaste> copy_paste_ptr;
     std::array<uint8_t, 28> server_auto_reconnect_packet {};
     FileSystemLicenseStore file_system_license_store;

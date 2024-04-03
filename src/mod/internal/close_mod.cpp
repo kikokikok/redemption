@@ -22,11 +22,12 @@
 #include "configs/config.hpp"
 #include "mod/internal/close_mod.hpp"
 #include "utils/timebase.hpp"
+#include "utils/trkeys.hpp"
 
 static WidgetWabClose build_close_widget(
     gdi::GraphicApi & drawable,
     Rect const widget_rect,
-    char const* auth_error_message,
+    char const* message,
     CloseModVariables vars,
     Font const& font, Theme const& theme, bool back_selector,
     WidgetWabClose::Events events)
@@ -64,7 +65,7 @@ static WidgetWabClose build_close_widget(
 
     return WidgetWabClose(
         drawable, widget_rect.x, widget_rect.y, widget_rect.cx, widget_rect.cy,
-        events, auth_error_message,
+        events, message,
         is_asked ? nullptr : vars.get<cfg::globals::auth_user>().c_str(),
         is_asked ? nullptr : temporary_text(vars).text,
         true,
@@ -73,7 +74,7 @@ static WidgetWabClose build_close_widget(
 }
 
 CloseMod::CloseMod(
-    char const* auth_error_message,
+    char const* message,
     CloseModVariables vars,
     EventContainer& events,
     gdi::GraphicApi & gd,
@@ -82,7 +83,7 @@ CloseMod::CloseMod(
     Font const& font, Theme const& theme, bool back_selector)
     : RailInternalModBase(gd, width, height, rail_client_execute, font, theme, nullptr)
     , close_widget(build_close_widget(
-        gd, widget_rect, auth_error_message, vars, font, theme, back_selector,
+        gd, widget_rect, message, vars, font, theme, back_selector,
         {
             .oncancel = [this]{
                 LOG(LOG_INFO, "CloseMod::notify Click on Close Button");
@@ -138,4 +139,3 @@ CloseMod::~CloseMod()
 {
     this->vars.set<cfg::context::close_box_extra_message>("");
 }
-

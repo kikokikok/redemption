@@ -39,6 +39,7 @@
 #include "utils/rect.hpp"
 #include "utils/theme.hpp"
 #include "utils/timebase.hpp"
+#include "utils/trkeys.hpp"
 #include "utils/translation.hpp"
 #include "utils/sugar/not_null_ptr.hpp"
 #include "core/events.hpp"
@@ -617,12 +618,13 @@ private:
             this->drawable->draw(order, rect, gdi::ColorCtx::depth24());
         }
 
-        gdi::TextMetrics tm(this->font, TR(trkeys::starting_remoteapp, this->lang));
+        auto msg = TR(trkeys::starting_remoteapp, this->lang);
+        gdi::TextMetrics tm(this->font, msg);
         gdi::server_draw_text(*this->drawable,
                               this->font,
                               this->protected_rect.x + (this->protected_rect.cx - tm.width) / 2,
                               this->protected_rect.y + (this->protected_rect.cy - tm.height) / 2,
-                              TR(trkeys::starting_remoteapp, this->lang),
+                              msg,
                               encode_color24()(this->theme.global.fgcolor),
                               encode_color24()(this->theme.global.bgcolor),
                               gdi::ColorCtx::depth24(),

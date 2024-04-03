@@ -36,6 +36,7 @@ class Random;
 class Theme;
 class EventContainer;
 class SessionLogApi;
+class ErrorMessageCtx;
 class KeyLayout;
 
 namespace kbdtypes
@@ -60,4 +61,5 @@ ModPack create_mod_vnc(
     Theme & theme,
     EventContainer& events,
     SessionLogApi& session_log,
+    ErrorMessageCtx& err_msg_ctx,
     Random & rand);

@@ -27,6 +27,7 @@
 #include "utils/sugar/scope_exit.hpp"
 #include "utils/sugar/unique_fd.hpp"
 #include "utils/sugar/bytes_view.hpp"
+#include "utils/error_message_ctx.hpp"
 #include "utils/netutils.hpp"
 #include "utils/ascii.hpp"
 #include "utils/parse_primary_drawing_orders.hpp"
@@ -229,8 +230,6 @@ private:
 class ModRDPWithSocket final : public RdpData, public mod_rdp
 {
 private:
-    Inifile & ini;
-
     std::unique_ptr<FdxCapture> fdx_capture;
 
 public:
@@ -267,6 +266,7 @@ public:
       , SocketTransport::Verbose verbose
       , EventContainer & events
       , SessionLogApi& session_log
+      , ErrorMessageCtx& err_msg_ctx
       , gdi::GraphicApi & gd
       , FrontAPI & front
       , const ClientInfo & info
@@ -283,20 +283,11 @@ public:
     )
     : RdpData(events, ini, name, std::move(sck), verbose, use_failure_simulation_socket_transport)
     , mod_rdp(transport_wrapper_fn(this->get_transport()), gd
-        , osd, events, session_log, front, info, redir_info, gen
+        , osd, events, session_log , err_msg_ctx, front, info, redir_info, gen
         , channels_authorizations, mod_rdp_params, tls_config
         , license_store
         , vars, file_validator_service, this->get_rdp_factory())
-    , ini(ini)
     {}
-
-    ~ModRDPWithSocket()
-    {
-        log_siem::target_disconnection(
-            this->ini.template get<cfg::context::auth_error_message>().c_str(),
-            this->ini.template get<cfg::context::session_id>().c_str());
-    }
-
 };
 
 inline static ModRdpSessionProbeParams get_session_probe_params(Inifile & ini)
@@ -535,6 +526,7 @@ ModPack create_mod_rdp(
     Theme & theme,
     EventContainer& events,
     SessionLogApi& session_log,
+    ErrorMessageCtx& err_msg_ctx,
     LicenseApi & file_system_license_store,
     Random & gen,
     CryptoContext & cctx,
@@ -602,7 +594,6 @@ ModPack create_mod_rdp(
     mod_rdp_params.application_params = get_rdp_application_params(ini);
 
     mod_rdp_params.rdp_compression = ini.get<cfg::mod_rdp::rdp_compression>();
-    mod_rdp_params.error_message = &ini.get_mutable_ref<cfg::context::auth_error_message>();
     mod_rdp_params.disconnect_on_logon_user_change = ini.get<cfg::mod_rdp::disconnect_on_logon_user_change>();
     mod_rdp_params.open_session_timeout = ini.get<cfg::mod_rdp::open_session_timeout>();
     mod_rdp_params.server_cert_store = ini.get<cfg::server_cert::server_cert_store>();
@@ -806,9 +797,8 @@ ModPack create_mod_rdp(
     mod_rdp_params.krb_armoring_user = ini.get<cfg::mod_rdp::effective_krb_armoring_user>().c_str();
     mod_rdp_params.krb_armoring_password = ini.get<cfg::mod_rdp::effective_krb_armoring_password>().c_str();
 
-    auto connect_to_rdp_target_host = [](
-        Inifile & ini, SessionLogApi& session_log,
-        trkeys::TrKey const& authentification_fail, bool enable_ipv6,
+    auto connect_to_rdp_target_host = [&ini, &session_log, &err_msg_ctx](
+        bool enable_ipv6,
         std::chrono::milliseconds connection_establishment_timeout,
         std::chrono::milliseconds tcp_user_timeout,
         time_t shadow_invite_time
@@ -816,7 +806,8 @@ ModPack create_mod_rdp(
         try
         {
             return connect_to_target_host(
-                ini, session_log, authentification_fail, enable_ipv6,
+                ini, session_log, err_msg_ctx,
+                trkeys::authentification_rdp_fail, enable_ipv6,
                 connection_establishment_timeout,
                 tcp_user_timeout);
         }
@@ -825,7 +816,7 @@ ModPack create_mod_rdp(
             if (e.id == ERR_SOCKET_CONNECT_FAILED && shadow_invite_time)
             {
                 if (time(nullptr) - shadow_invite_time > 30) {
-                    ini.set<cfg::context::auth_error_message>(TR(trkeys::target_shadow_fail, language(ini)));
+                    err_msg_ctx.set_msg(trkeys::target_shadow_fail);
                 }
             }
 
@@ -835,7 +826,7 @@ ModPack create_mod_rdp(
 
     unique_fd client_sck = ini.get<cfg::context::tunneling_target_host>().empty()
         ? connect_to_rdp_target_host(
-            ini, session_log, trkeys::authentification_rdp_fail, ini.get<cfg::mod_rdp::enable_ipv6>(),
+            ini.get<cfg::mod_rdp::enable_ipv6>(),
             ini.get<cfg::all_target_mod::connection_establishment_timeout>(),
             ini.get<cfg::all_target_mod::tcp_user_timeout>(),
             mod_rdp_params.application_params.shadow_invite_time)
@@ -892,6 +883,7 @@ ModPack create_mod_rdp(
         safe_cast<SocketTransport::Verbose>(ini.get<cfg::debug::sck_mod>()),
         events,
         session_log,
+        err_msg_ctx,
         host_mod ? host_mod->proxy_gd() : drawable,
         front,
         client_info,

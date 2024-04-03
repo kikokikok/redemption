@@ -23,6 +23,7 @@
 
 #include "configs/config.hpp"
 #include "utils/translation.hpp"
+#include "utils/trkeys.hpp"
 #include <string_view>
 
 using namespace std::string_view_literals;

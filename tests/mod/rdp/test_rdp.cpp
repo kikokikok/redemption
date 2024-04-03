@@ -25,14 +25,15 @@
 
 #include "acl/auth_api.hpp"
 #include "acl/license_api.hpp"
+#include "core/events.hpp"
 #include "core/client_info.hpp"
+#include "core/channels_authorizations.hpp"
 #include "client/common/new_mod_rdp.hpp"
 #include "mod/rdp/rdp_params.hpp"
 #include "mod/rdp/mod_rdp_factory.hpp"
 #include "utils/theme.hpp"
-#include "utils/timebase.hpp"
 #include "utils/redirection_info.hpp"
-#include "core/channels_authorizations.hpp"
+#include "utils/error_message_ctx.hpp"
 
 #include "test_only/front/fake_front.hpp"
 #include "test_only/lcg_random.hpp"
@@ -162,6 +163,7 @@ RED_AUTO_TEST_CASE(TestModRDPWin2008Server)
     auto& events = event_manager.get_events();
     Inifile ini;
     NullSessionLog session_log;
+    ErrorMessageCtx err_msg_ctx;
     const ChannelsAuthorizations channels_authorizations{"rdpsnd_audio_output"_zv, ""_zv};
     ModRdpFactory mod_rdp_factory;
     gdi::NullOsd osd;
@@ -169,7 +171,7 @@ RED_AUTO_TEST_CASE(TestModRDPWin2008Server)
     RedirectionInfo redir_info;
 
     auto mod = new_mod_rdp(
-        t, front.gd(), osd, events, session_log,
+        t, front.gd(), osd, events, session_log, err_msg_ctx,
         front, info, redir_info, gen, channels_authorizations,
         mod_rdp_params, tls_config, license_store,
         ini, nullptr, mod_rdp_factory);

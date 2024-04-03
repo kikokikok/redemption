@@ -101,7 +101,6 @@ struct ModRDPParams
 
     RdpCompression rdp_compression = RdpCompression::none;
 
-    std::string *        error_message = nullptr;
     std::chrono::seconds open_session_timeout {};
     bool                 disconnect_on_logon_user_change = false;
 
@@ -361,7 +360,6 @@ struct ModRDPParams
 
         RDP_PARAMS_LOG("%u",     static_cast<unsigned>, rdp_compression);
 
-        RDP_PARAMS_LOG("<%p>",   static_cast<void*>,    error_message);
         RDP_PARAMS_LOG("%s",     yes_or_no,             disconnect_on_logon_user_change);
         RDP_PARAMS_LOG("%u",     from_sec,              open_session_timeout);
 

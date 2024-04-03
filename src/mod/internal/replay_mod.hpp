@@ -33,6 +33,7 @@
 #include <string>
 #include <memory>
 
+class ErrorMessageCtx;
 class FrontAPI;
 namespace gdi
 {
@@ -48,7 +49,7 @@ public:
              , gdi::GraphicApi & drawable
              , FrontAPI & front
              , std::string replay_path
-             , std::string & auth_error_message
+             , ErrorMessageCtx & err_msg_ctx
              , bool wait_for_escape
              , bool replay_on_loop
              , bool play_video_with_corrupted_bitmap
@@ -90,7 +91,7 @@ private:
 
     MonotonicTimePoint start_time;
 
-    std::string& auth_error_message;
+    ErrorMessageCtx & err_msg_ctx;
 
     gdi::GraphicApi& drawable;
     FrontAPI& front;

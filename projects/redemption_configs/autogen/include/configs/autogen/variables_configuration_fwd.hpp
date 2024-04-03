@@ -331,7 +331,6 @@ namespace cfg
         struct opt_bpp;
         struct opt_height;
         struct opt_width;
-        struct auth_error_message;
         struct selector;
         struct selector_current_page;
         struct selector_device_filter;

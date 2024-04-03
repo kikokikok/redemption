@@ -619,7 +619,6 @@ test-run tests/acl/test_acl_serializer :
   <library>src/utils/hexadecimal_string_to_buffer.o
   <library>src/utils/hexdump.o
   <library>src/utils/stacktrace.o
-  <library>src/utils/strutils.o
   <library>tests/includes/test_only/transport/test_transport.o
   $(BOOST_STACKTRACE_LINKFLAGS)
 ;
@@ -1531,7 +1530,6 @@ test-run tests/core/RDP/gcc/userdata/test_sc_sec1 :
   <library>crypto
   <library>src/core/error.o
   <library>src/utils/stacktrace.o
-  <library>src/utils/strutils.o
   <library>tests/includes/test_only/transport/test_transport.o
   $(BOOST_STACKTRACE_LINKFLAGS)
 ;
@@ -1638,7 +1636,6 @@ test-run tests/core/RDP/nla/test_nla :
   <library>src/core/error.o
   <library>src/utils/hexdump.o
   <library>src/utils/stacktrace.o
-  <library>src/utils/strutils.o
   <library>src/utils/utf.o
   <library>tests/includes/test_only/transport/test_transport.o
   $(BOOST_STACKTRACE_LINKFLAGS)
@@ -1777,7 +1774,6 @@ test-run tests/core/RDP/test_RefreshRectPDU :
   <library>src/core/error.o
   <library>src/utils/hexdump.o
   <library>src/utils/stacktrace.o
-  <library>src/utils/strutils.o
   <library>tests/includes/test_only/transport/test_transport.o
   $(BOOST_STACKTRACE_LINKFLAGS)
 ;
@@ -1838,7 +1834,6 @@ test-run tests/core/RDP/test_fastpath :
   <library>src/core/error.o
   <library>src/utils/hexdump.o
   <library>src/utils/stacktrace.o
-  <library>src/utils/strutils.o
   <library>tests/includes/test_only/transport/test_transport.o
   $(BOOST_STACKTRACE_LINKFLAGS)
 ;
@@ -1996,7 +1991,6 @@ test-run tests/core/RDP/test_x224 :
   <library>src/core/error.o
   <library>src/utils/hexdump.o
   <library>src/utils/stacktrace.o
-  <library>src/utils/strutils.o
   <library>tests/includes/test_only/transport/test_transport.o
   $(BOOST_STACKTRACE_LINKFLAGS)
 ;
@@ -4291,7 +4285,6 @@ test-run tests/transport/test_gzip_compression_transport :
   <library>src/core/error.o
   <library>src/transport/gzip_compression_transport.o
   <library>src/utils/stacktrace.o
-  <library>src/utils/strutils.o
   <library>tests/includes/test_only/transport/test_transport.o
   <library>z
   $(BOOST_STACKTRACE_LINKFLAGS)
@@ -4396,7 +4389,6 @@ test-run tests/transport/test_snappy_compression_transport :
   <library>src/core/error.o
   <library>src/transport/snappy_compression_transport.o
   <library>src/utils/stacktrace.o
-  <library>src/utils/strutils.o
   <library>tests/includes/test_only/transport/test_transport.o
   $(BOOST_STACKTRACE_LINKFLAGS)
 ;
@@ -4418,7 +4410,6 @@ test-run tests/transport/test_test_transport :
 :
   <library>src/core/error.o
   <library>src/utils/stacktrace.o
-  <library>src/utils/strutils.o
   <library>tests/includes/test_only/transport/test_transport.o
   $(BOOST_STACKTRACE_LINKFLAGS)
 ;
@@ -4706,6 +4697,15 @@ test-run tests/utils/test_drawable_pointer :
 test-run tests/utils/test_ellipse :
   $(REDEMPTION_TEST_PATH)/utils/test_ellipse.cpp
 :
+;
+test-run tests/utils/test_error_message_ctx :
+  $(REDEMPTION_TEST_PATH)/utils/test_error_message_ctx.cpp
+:
+  <library>app_path_test.o
+  <library>src/system/linux/system/i18n/message_translator_gettext.o
+  <library>src/utils/fileutils.o
+  <library>src/utils/strutils.o
+  $(MUSL_GETTEXT)
 ;
 test-run tests/utils/test_file_permissions :
   $(REDEMPTION_TEST_PATH)/utils/test_file_permissions.cpp
@@ -5388,6 +5388,7 @@ alias test_diffiehellman : tests/utils/test_diffiehellman ;
 alias test_drawable : tests/utils/test_drawable ;
 alias test_drawable_pointer : tests/utils/test_drawable_pointer ;
 alias test_ellipse : tests/utils/test_ellipse ;
+alias test_error_message_ctx : tests/utils/test_error_message_ctx ;
 alias test_file_permissions : tests/utils/test_file_permissions ;
 alias test_fileutils : tests/utils/test_fileutils ;
 alias test_get_printable_password : tests/utils/test_get_printable_password ;
@@ -5786,6 +5787,7 @@ alias tests/utils.norec :
   tests/utils/test_drawable
   tests/utils/test_drawable_pointer
   tests/utils/test_ellipse
+  tests/utils/test_error_message_ctx
   tests/utils/test_file_permissions
   tests/utils/test_fileutils
   tests/utils/test_get_printable_password
@@ -6490,6 +6492,7 @@ explicit
   test_drawable
   test_drawable_pointer
   test_ellipse
+  test_error_message_ctx
   test_file_permissions
   test_fileutils
   test_get_printable_password

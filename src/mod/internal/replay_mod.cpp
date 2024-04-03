@@ -24,6 +24,8 @@ Author(s): Wallix Team
 #include "utils/timebase.hpp"
 #include "utils/fileutils.hpp"
 #include "utils/strutils.hpp"
+#include "utils/error_message_ctx.hpp"
+#include "utils/trkeys.hpp"
 #include "mod/internal/replay_mod.hpp"
 #include "transport/in_multi_crypto_transport.hpp"
 #include "transport/mwrm_file_data.hpp"
@@ -98,12 +100,12 @@ ReplayMod::ReplayMod(
     gdi::GraphicApi & drawable,
     FrontAPI & front,
     std::string replay_path,
-    std::string & auth_error_message,
+    ErrorMessageCtx & err_msg_ctx,
     bool wait_for_escape,
     bool replay_on_loop,
     bool play_video_with_corrupted_bitmap,
     Verbose debug_capture)
-: auth_error_message(auth_error_message)
+: err_msg_ctx(err_msg_ctx)
 , drawable(drawable)
 , front(front)
 , replay_path(std::move(replay_path))
@@ -150,14 +152,12 @@ bool ReplayMod::next_timestamp()
         }
     }
     catch (Error const& e) {
-        if (e.id == ERR_TRANSPORT_OPEN_FAILED) {
-            this->auth_error_message = "The recorded file is inaccessible or corrupted!";
-            this->set_mod_signal(BACK_EVENT_NEXT);
-            has_order = false;
-        }
-        else {
+        if (e.id != ERR_TRANSPORT_OPEN_FAILED) {
             throw;
         }
+        this->err_msg_ctx.set_msg(trkeys::err_replay_open_file);
+        this->set_mod_signal(BACK_EVENT_NEXT);
+        has_order = false;
     }
 
     return has_order;

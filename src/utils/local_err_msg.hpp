@@ -20,9 +20,7 @@
 
 #pragma once
 
-#include "configs/autogen/enums.hpp" // Language
-#include "utils/sugar/zstring_view.hpp"
-
 class Error;
+class TrKey;
 
-zstring_view local_err_msg(Error const& error, Language lang, bool with_id = true) noexcept; /*NOLINT*/
+TrKey const* local_err_msg(Error const& error) noexcept;

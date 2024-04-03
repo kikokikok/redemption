@@ -47,7 +47,7 @@ class CloseMod : public RailInternalModBase
 
 public:
     CloseMod(
-        char const* auth_error_message,
+        char const* message,
         CloseModVariables vars,
         EventContainer& events,
         gdi::GraphicApi & gd,

@@ -138,6 +138,9 @@ struct FileValidatorService;
 #include "utils/parse_primary_drawing_orders.hpp"
 #include "utils/stream.hpp"
 #include "utils/strutils.hpp"
+#include "utils/error_message_ctx.hpp"
+#include "utils/translation.hpp"
+#include "utils/trkeys.hpp"
 #include "utils/sugar/cast.hpp"
 #include "utils/sugar/split.hpp"
 #include "utils/sugar/static_array_to_hexadecimal_chars.hpp"
@@ -1826,8 +1829,6 @@ class mod_rdp : public mod_api, public rdp_api, public sespro_api
 
     rdp_mppc_unified_dec mppc_dec;
 
-    std::string * error_message;
-
     gdi::GraphicApi & gd;
     EventsGuard events_guard;
     SessionLogApi& session_log;
@@ -1916,6 +1917,8 @@ class mod_rdp : public mod_api, public rdp_api, public sespro_api
 
     RdpSaveSessionInfoPDU save_session_info_pdu;
 
+    ErrorMessageCtx& err_msg_ctx;
+
     TpduBuffer buf;
 
 public:
@@ -1927,6 +1930,7 @@ public:
       , [[maybe_unused]] gdi::OsdApi & osd
       , EventContainer & events
       , SessionLogApi& session_log
+      , ErrorMessageCtx& err_msg_ctx
       , FrontAPI & front
       , const ClientInfo & info
       , RedirectionInfo & redir_info
@@ -1992,7 +1996,6 @@ public:
                 }
                 return client_support - disabled_orders;
             }(info.order_caps.orderSupport, mod_rdp_params.disabled_orders))
-        , error_message(mod_rdp_params.error_message)
         , gd(gd)
         , events_guard(events)
         , session_log(session_log)
@@ -2020,6 +2023,7 @@ public:
         , session_probe_start_launch_timeout_timer_only_after_logon(mod_rdp_params.session_probe_params.start_launch_timeout_timer_only_after_logon)
         #endif
         , save_session_info_pdu(mod_rdp_params.save_session_info_pdu)
+        , err_msg_ctx(err_msg_ctx)
     {
         #ifdef __EMSCRIPTEN__
         (void)events;
@@ -2191,9 +2195,7 @@ private:
             [this](Event&event)
             {
                 try {
-                    if (this->error_message) {
-                        *this->error_message = "Logon timer expired!";
-                    }
+                    this->err_msg_ctx.set_msg(trkeys::err_rdp_open_session_timeout);
 
                     this->session_log.report("CONNECTION_FAILED", "Logon timer expired.");
             #ifndef __EMSCRIPTEN__
@@ -5033,8 +5035,7 @@ public:
 
         switch (errorInfo) {
         case ERRINFO_DISCONNECTED_BY_OTHERCONNECTION:
-            this->vars.set<cfg::context::auth_error_message>(
-                TR(trkeys::disconnected_by_otherconnection, this->lang));
+            this->err_msg_ctx.set_msg(trkeys::disconnected_by_otherconnection);
             break;
         case ERRINFO_REMOTEAPPSNOTENABLED:
             this->remote_apps_not_enabled = true;
@@ -5068,9 +5069,7 @@ public:
               && 0 != ::strcasecmp(domain_username_format_1, this->logon_info.username().c_str())
               && 0 != ::strcasecmp(username, this->logon_info.username().c_str()))))
         ) {
-            if (this->error_message) {
-                *this->error_message = "Unauthorized logon user change detected!";
-            }
+            this->err_msg_ctx.set_msg(trkeys::err_rdp_unauthorized_user_change);
 
             this->connection_finalization_state = DISCONNECTED;
 
@@ -5251,12 +5250,19 @@ public:
     }
 
     [[noreturn]]
-    void on_remoteapp_redirect_user_screen(uint32_t ErrorNotificationData) {
+    void on_remoteapp_redirect_user_screen(uint32_t ErrorNotificationData)
+    {
         LOG(LOG_ERR, "Can not redirect user's focus to the WinLogon screen in RemoteApp mode!");
-        std::string errmsg = str_concat(
-            "(RemoteApp) ",
-            RDP::LogonErrorsInfo_Recv::ErrorNotificationDataToShortMessage(ErrorNotificationData));
-        this->vars.set<cfg::context::auth_error_message>(errmsg);
+        auto errmsg = [=]{
+            switch (ErrorNotificationData) {
+            case RDP::LOGON_FAILED_BAD_PASSWORD: return trkeys::err_remoteapp_bad_password;
+            case RDP::LOGON_FAILED_UPDATE_PASSWORD: return trkeys::err_remoteapp_update_password;
+            case RDP::LOGON_FAILED_OTHER: return trkeys::err_remoteapp_failed;
+            case RDP::LOGON_WARNING: return trkeys::err_remoteapp_warning;
+            default: return trkeys::err_remoteapp_unexpected_error;
+            }
+        }();
+        this->err_msg_ctx.set_msg(errmsg);
         throw Error(ERR_RAIL_LOGON_FAILED_OR_WARNING);
     }
 
@@ -6269,8 +6275,7 @@ public:
 
     void sespro_ending_in_progress() override
     {
-        this->vars.set<cfg::context::auth_error_message>(
-            TR(trkeys::session_logoff_in_progress, this->lang));
+        this->err_msg_ctx.set_msg(trkeys::session_logoff_in_progress);
         this->set_mod_signal(BACK_EVENT_NEXT);
     }
 

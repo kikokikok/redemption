@@ -32,6 +32,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "system/scoped_ssl_init.hpp"
 #include "transport/recorder_transport.hpp"
 #include "transport/socket_transport.hpp"
+#include "utils/error_message_ctx.hpp"
 #include "utils/fixed_random.hpp"
 #include "utils/netutils.hpp"
 #include "utils/redirection_info.hpp"
@@ -259,6 +260,8 @@ int main(int argc, char const** argv)
             return *recorder_transport;
         };
 
+        ErrorMessageCtx err_msg_ctx;
+
         try {
             /*
              * Open module
@@ -267,14 +270,15 @@ int main(int argc, char const** argv)
                 ? create_mod_rdp(
                     gd, osd, redir_info, ini, front, client_info, rail_client_execute,
                     kbdtypes::KeyLocks(), glyph, theme, event_container, session_log,
-                    file_system_license_store, random, cctx, server_auto_reconnect_packet,
+                    err_msg_ctx, file_system_license_store, random, cctx,
+                    server_auto_reconnect_packet,
                     std::exchange(perform_automatic_reconnection, PerformAutomaticReconnection::No),
                     maybe_make_transport_record
                 )
                 : create_mod_vnc(
                     gd, ini, front, client_info, rail_client_execute,
                     get_layout(client_info.keylayout), kbdtypes::KeyLocks(),
-                    glyph, theme, event_container, session_log, random
+                    glyph, theme, event_container, session_log, err_msg_ctx, random
                 );
 
             mod.reset(mod_pack.mod);
@@ -358,6 +362,10 @@ int main(int argc, char const** argv)
         }
         catch (Error const& e) {
             LOG(LOG_ERR, "Headless Client: Exception raised = %s !", e.errmsg());
+            if (auto msg = err_msg_ctx.get_msg(); !msg.empty()) {
+                LOG(LOG_ERR, "Headless Client: msg: %s", msg);
+            }
+            err_msg_ctx.clear();
 
             if (ERR_AUTOMATIC_RECONNECTION_REQUIRED == e.id) {
                 perform_automatic_reconnection = PerformAutomaticReconnection::Yes;

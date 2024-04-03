@@ -21,13 +21,11 @@ Author(s): Jonathan Poelen
 #pragma once
 
 #include "mod/mod_api.hpp"
-#include "acl/auth_api.hpp"
 #include "mod/rdp/mod_rdp_variables.hpp"
-#include "core/events.hpp"
-#include "utils/timebase.hpp"
 
 #include <memory>
 
+class EventContainer;
 class ClientInfo;
 class FrontAPI;
 class LicenseApi;
@@ -39,6 +37,8 @@ class FileValidatorService;
 class TlsConfig;
 class ModRdpFactory;
 class ChannelsAuthorizations;
+class SessionLogApi;
+class ErrorMessageCtx;
 
 namespace gdi {
     class GraphicApi;
@@ -48,9 +48,10 @@ namespace gdi {
 std::unique_ptr<mod_api> new_mod_rdp(
     Transport& trans,
     gdi::GraphicApi& gd,
-    gdi::OsdApi & osd,
-    EventContainer & events,
+    gdi::OsdApi& osd,
+    EventContainer& events,
     SessionLogApi& session_log,
+    ErrorMessageCtx & err_msg_ctx,
     FrontAPI& front,
     const ClientInfo& info,
     RedirectionInfo& redir_info,
