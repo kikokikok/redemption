@@ -2187,33 +2187,43 @@ private:
                         );
                     }
                 }
-                catch (Error & error) {
+                catch (Error const& error) {
                     event.garbage = true;
-                    this->throw_error(error);
+
+                    LOG(LOG_INFO, "throw error mod_rdp::fd event exception %u: %s",
+                        error.id, error.errmsg());
+
+                    REDEMPTION_DIAGNOSTIC_PUSH()
+                    REDEMPTION_DIAGNOSTIC_GCC_IGNORE("-Wswitch-enum")
+                    switch (error.id) {
+                    case ERR_TRANSPORT_TLS_CERTIFICATE_CHANGED:
+                    case ERR_TRANSPORT_TLS_CERTIFICATE_MISSED:
+                    case ERR_TRANSPORT_TLS_CERTIFICATE_CORRUPTED:
+                    case ERR_TRANSPORT_TLS_CERTIFICATE_INACCESSIBLE:
+                    case ERR_NLA_AUTHENTICATION_FAILED:
+                        throw error;
+                    default: break;
+                    }
+                    REDEMPTION_DIAGNOSTIC_POP()
+
+                    this->add_nego_state_to_close_box_extra_message();
+
+                    // TODO rethrow erorr ?
+                    throw Error(ERR_RDP_NEGOTIATION);
                 }
             },
-            [this](Event&event)
+            [this](Event& event)
             {
-                try {
-                    this->err_msg_ctx.set_msg(trkeys::err_rdp_open_session_timeout);
+                event.garbage = true;
 
-                    this->session_log.report("CONNECTION_FAILED", "Logon timer expired.");
-            #ifndef __EMSCRIPTEN__
-                    if (this->channels.session_probe.enable_session_probe) {
-                        this->enable_input_event();
-                        this->allow_suppress_output();
-                        this->enable_graphics_update();
-                    }
-            #endif
-                    LOG(LOG_ERR,
-                        "Logon timer expired on %s. The session will be disconnected.",
+                this->session_log.report("CONNECTION_FAILED", "Logon timer expired.");
+
+                LOG(LOG_ERR, "Logon timer expired on %s. The session will be disconnected.",
                     this->logon_info.hostname());
-                    throw Error(ERR_RDP_OPEN_SESSION_TIMEOUT);
-                }
-                catch (Error & error) {
-                    event.garbage = true;
-                    this->throw_error(error);
-                }
+
+                this->add_nego_state_to_close_box_extra_message();
+
+                throw Error(ERR_RDP_OPEN_SESSION_TIMEOUT);
             }
         );
     }
@@ -2250,24 +2260,8 @@ public:
         }
     }
 
-
-    [[noreturn]] void throw_error(Error & error)
+    void add_nego_state_to_close_box_extra_message()
     {
-        LOG(LOG_INFO, "throw error mod_rdp::fd event exception %u: %s", error.id, error.errmsg());
-
-        REDEMPTION_DIAGNOSTIC_PUSH()
-        REDEMPTION_DIAGNOSTIC_GCC_IGNORE("-Wswitch-enum")
-        switch (error.id) {
-        case ERR_TRANSPORT_TLS_CERTIFICATE_CHANGED:
-        case ERR_TRANSPORT_TLS_CERTIFICATE_MISSED:
-        case ERR_TRANSPORT_TLS_CERTIFICATE_CORRUPTED:
-        case ERR_TRANSPORT_TLS_CERTIFICATE_INACCESSIBLE:
-        case ERR_NLA_AUTHENTICATION_FAILED:
-            throw error;
-        default: break;
-        }
-        REDEMPTION_DIAGNOSTIC_POP()
-
         const char * statestr = "UNKNOWN_STATE";
         const char * statedescr = "Unknown state.";
         RdpNegociation::State rdp_nego_state =
@@ -2288,31 +2282,30 @@ public:
             break;
             case RdpNegociation::State::CHANNEL_CONNECTION_ATTACH_USER:
                 statestr = "RDP_CHANNEL_CONNECTION_ATTACH_USER";
-                statedescr = TR(trkeys::err_mod_rdp_channel_connection_attach_user, this->lang);
+                statedescr = TR(trkeys::err_rdp_channel_connection, this->lang);
             break;
             case RdpNegociation::State::CHANNEL_JOIN_CONFIRM:
                 statestr = "RDP_CHANNEL_JOIN_CONFIRM";
-                statedescr = TR(trkeys::mod_rdp_channel_join_confirme, this->lang);
+                statedescr = TR(trkeys::err_rdp_channel_connection, this->lang);
             break;
             case RdpNegociation::State::GET_LICENSE:
                 statestr = "RDP_GET_LICENSE";
-                statedescr = TR(trkeys::mod_rdp_get_license, this->lang);
+                statedescr = TR(trkeys::err_rdp_get_license, this->lang);
             break;
             case RdpNegociation::State::TERMINATED:
                 statestr = "RDP_TERMINATED";
                 statedescr = TR(trkeys::err_mod_rdp_nego, this->lang);
             break;
         }
+
         str_append(this->close_box_extra_message_ref, " ", statedescr);
-        if (rdp_nego_state != RdpNegociation::State::BASIC_SETTINGS_EXCHANGE)
-        {
+        if (rdp_nego_state != RdpNegociation::State::BASIC_SETTINGS_EXCHANGE) {
             str_append(this->close_box_extra_message_ref, " (", statestr, ')');
         }
+
         LOG(LOG_ERR, "Creation of new mod 'RDP' failed at %s state. %s",
             statestr, statedescr);
-        throw Error(ERR_RDP_NEGOTIATION);
     }
-
 
     void acl_update(AclFieldMask const& acl_fields) override
     {

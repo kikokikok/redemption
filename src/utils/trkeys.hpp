@@ -165,9 +165,8 @@ namespace trkeys
     TR_KV(err_server_denied_connection, "Please check provided Load Balance Info.");
     TR_KV(err_mod_rdp_nego, "Fail during TLS security exchange.");
     TR_KV(err_mod_rdp_basic_settings_exchange, "Remote access may be denied for the user account.");
-    TR_KV(err_mod_rdp_channel_connection_attach_user, "Fail during channels connection.");
-    TR_KV(mod_rdp_channel_join_confirme, "Fail during channels connection.");
-    TR_KV(mod_rdp_get_license, "Failed while trying to get licence.");
+    TR_KV(err_rdp_channel_connection, "Fail during channels connection.");
+    TR_KV(err_rdp_get_license, "Failed while trying to get licence.");
     TR_KV(err_mod_rdp_connected, "Fail while connecting session on the target.");
     TR_KV(file_verification_wait, "File being analyzed: ");
     TR_KV(file_verification_accepted, "Valid file: ");
