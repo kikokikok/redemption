@@ -103,59 +103,69 @@ namespace trkeys
     TR_KV(authentication_required,  "Authentication Required");
     TR_KV(target_info_required, "Target Information Required");
     TR_KV(device, "Device");
+
+
+    // osd message
     TR_KV(disable_osd, "Press \"Insert\" key or left-click to hide this message.");
+
+
     TR_KV(disconnected_by_otherconnection, "Another user connected to the resource, so your connection was lost.");
     TR_KV_FMT(process_interrupted_security_policies, "The process '%.*s' was interrupted in accordance with security policies.");
     TR_KV_FMT(account_manipulation_blocked_security_policies, "The account manipulation initiated by process '%.*s' was rejected in accordance with security policies.");
     TR_KV(session_logoff_in_progress, "Session logoff in progress.");
+
+
+    // rail session manager (widget message)
     TR_KV(starting_remoteapp, "Starting RemoteApp ...");
     TR_KV(closing_remoteapp, "All RemoteApp windows are closed.");
     TR_KV(disconnect_now, "Disconnect Now");
-    TR_KV(err_rdp_server_redir, "The computer that you are trying to connect to is redirecting you to another computer!");
-    TR_KV(err_nla_authentication_failed, "NLA Authentication Failed!");
-    TR_KV(err_transport_tls_certificate_changed, "TLS certificate changed!");
-    TR_KV(err_transport_tls_certificate_missed, "TLS certificate missed!");
-    TR_KV(err_transport_tls_certificate_corrupted, "TLS certificate corrupted!");
-    TR_KV(err_transport_tls_certificate_inaccessible, "TLS certificate is inaccessible!");
-    TR_KV(err_vnc_connection_error, "VNC connection error!");
-    TR_KV(err_rdp_unsupported_monitor_layout, "Unsupported client display monitor layout!");
+
+
+    TR_KV(err_rdp_server_redir, "The computer that you are trying to connect to is redirecting you to another computer.");
+    TR_KV(err_nla_authentication_failed, "NLA Authentication Failed.");
+    TR_KV(err_transport_tls_certificate_changed, "TLS certificate changed.");
+    TR_KV(err_transport_tls_certificate_missed, "TLS certificate missed.");
+    TR_KV(err_transport_tls_certificate_corrupted, "TLS certificate corrupted.");
+    TR_KV(err_transport_tls_certificate_inaccessible, "TLS certificate is inaccessible.");
+    TR_KV(err_vnc_connection_error, "VNC connection error.");
+    TR_KV(err_rdp_unsupported_monitor_layout, "Unsupported client display monitor layout.");
     TR_KV(err_rdp_negotiation, "RDP negotiation phase failure.");
-    TR_KV(err_lic, "An error occurred during the licensing protocol!");
-    TR_KV(err_rail_client_execute, "The RemoteApp program did not start on the remote computer!");
-    TR_KV(err_rail_starting_program, "Cannot start the RemoteApp program!");
-    TR_KV(err_rail_unauthorized_program, "The RemoteApp program is not in the list of authorized programs!");
-    TR_KV(err_rdp_open_session_timeout, "Logon timer expired!");
-    TR_KV(err_rdp_unauthorized_user_change, "Unauthorized logon user change detected!");
-    TR_KV(err_session_probe_launch,"Could not launch Session Probe!");
+    TR_KV(err_lic, "An error occurred during the licensing protocol.");
+    TR_KV(err_rail_client_execute, "The RemoteApp program did not start on the remote computer.");
+    TR_KV(err_rail_starting_program, "Cannot start the RemoteApp program.");
+    TR_KV(err_rail_unauthorized_program, "The RemoteApp program is not in the list of authorized programs.");
+    TR_KV(err_rdp_open_session_timeout, "Logon timer expired.");
+    TR_KV(err_rdp_unauthorized_user_change, "Unauthorized logon user change detected.");
+    TR_KV(err_session_probe_launch,"Could not launch Session Probe.");
     TR_KV(err_session_probe_asbl_fsvc_unavailable,
-          "(ASBL) Could not launch Session Probe! File System Virtual Channel is unavailable. "
+          "(ASBL) Could not launch Session Probe. File System Virtual Channel is unavailable. "
           "Please allow the drive redirection in the Remote Desktop Services settings of the target.");
     TR_KV(err_session_probe_asbl_maybe_something_blocks,
-          "(ASBL) Could not launch Session Probe! Maybe something blocks it on the target. "
+          "(ASBL) Could not launch Session Probe. Maybe something blocks it on the target. "
           "Is the target running under Microsoft Server products? "
           "The Command Prompt should be published as the RemoteApp program and accept any command-line parameters. "
           "Please also check the temporary directory to ensure there is enough free space.");
-    TR_KV(err_session_probe_asbl_unknown_reason, "(ASBL) Session Probe launch has failed for unknown reason!");
+    TR_KV(err_session_probe_asbl_unknown_reason, "(ASBL) Session Probe launch has failed for unknown reason.");
     TR_KV(err_session_probe_cbbl_fsvc_unavailable,
-          "(CBBL) Could not launch Session Probe! File System Virtual Channel is unavailable. "
+          "(CBBL) Could not launch Session Probe. File System Virtual Channel is unavailable. "
           "Please allow the drive redirection in the Remote Desktop Services settings of the target.");
     TR_KV(err_session_probe_cbbl_cbvc_unavailable,
-          "(CBBL) Could not launch Session Probe! Clipboard Virtual Channel is unavailable. "
+          "(CBBL) Could not launch Session Probe. Clipboard Virtual Channel is unavailable. "
           "Please allow the clipboard redirection in the Remote Desktop Services settings of the target.");
     TR_KV(err_session_probe_cbbl_drive_not_ready_yet,
-          "(CBBL) Could not launch Session Probe! Drive of Session Probe is not ready yet. "
+          "(CBBL) Could not launch Session Probe. Drive of Session Probe is not ready yet. "
           "Is the target running under Windows Server 2008 R2 or more recent version?");
     TR_KV(err_session_probe_cbbl_maybe_something_blocks,
-          "(CBBL) Session Probe is not launched! Maybe something blocks it on the target. "
+          "(CBBL) Session Probe is not launched. Maybe something blocks it on the target. "
           "Please also check the temporary directory to ensure there is enough free space.");
     TR_KV(err_session_probe_cbbl_launch_cycle_interrupted,
-          "(CBBL) Session Probe launch cycle has been interrupted! "
+          "(CBBL) Session Probe launch cycle has been interrupted. "
           "The launch timeout duration may be too short.");
     TR_KV(err_session_probe_cbbl_unknown_reason_refer_to_syslog,
-          "(CBBL) Session Probe launch has failed for unknown reason! "
+          "(CBBL) Session Probe launch has failed for unknown reason. "
           "Please refer to the syslog file for more detailed information regarding the error condition.");
     TR_KV(err_session_probe_rp_launch_refer_to_syslog,
-          "(RP) Could not launch Session Probe! "
+          "(RP) Could not launch Session Probe. "
           "Please refer to the syslog file for more detailed information regarding the error condition.");
     TR_KV(err_session_unknown_backend, "Unknown backend failure.");
     TR_KV(err_login_password, "Provided login/password is probably incorrect.");
@@ -176,20 +186,18 @@ namespace trkeys
 
     // RemoteApp error in mod_rdp
     TR_KV(err_remoteapp_bad_password,
-        "(RemoteApp) The logon process failed. "
-        "The logon credentials which were supplied are invalid.");
+        "(RemoteApp) The logon credentials which were supplied are invalid.");
     TR_KV(err_remoteapp_update_password,
-        "(RemoteApp) The logon process failed. "
-        "The user cannot continue with the logon process until the password is changed.");
+        "(RemoteApp) The user cannot continue with the logon process until the password is changed.");
     TR_KV(err_remoteapp_failed, "(RemoteApp) The logon process failed.");
     TR_KV(err_remoteapp_warning, "(RemoteApp) The logon process has displayed a warning.");
     TR_KV(err_remoteapp_unexpected_error, "(RemoteApp) Unexpected Error Notification Type.");
 
     // replay_mod error
-    TR_KV(err_replay_open_file, "The recorded file is inaccessible or corrupted!");
+    TR_KV(err_replay_open_file, "The recorded file is inaccessible or corrupted.");
 
-    // sesman
-    TR_KV(err_sesman_unavailable, "No authentifier available");
+    // sesman error
+    TR_KV(err_sesman_unavailable, "No authentifier available.");
 
 #undef TR_KV
 #undef TR_KV_FMT
