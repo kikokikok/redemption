@@ -271,22 +271,24 @@ make ppocr_resources :
 
 
 
-# Compile all translation files and build gettext environment (as administrator) :
+# Compile all translation files and build gettext environment:
 #
 #   bjam install-gettext
 #
+## gettext {
 actions gen_gettext_mo
 {
-    $(REDEMPTION_PUBLIC_PATH)/tools/i18n/gen_msg_catalog.py -C -p $(REDEMPTION_PUBLIC_PATH)/tools/i18n/ -b $(<).d && :>$(<)
+    $(REDEMPTION_PUBLIC_PATH)/tools/i18n/gen_catalog.sh compile "$(<).d" && :>"$(<)"
 }
-actions make_gettext_install
+actions gettext_install
 {
-    mkdir -p $(INSTALLDIR)$(SHARE_PREFIX)/$(>:B)
-    cp -R $(>).d/* $(INSTALLDIR)$(SHARE_PREFIX)/$(>:B) ;
+    d="$(INSTALLDIR)$(SHARE_PREFIX)/$(>:B)"
+    mkdir -p "$d"
+    cp -R "$(>).d"/* "$d" ;
 }
 
 explicit install-gettext ;
-make install-gettext : locale : @make_gettext_install ;
+make install-gettext : locale : @gettext_install ;
 
 explicit locale ;
 make locale :
@@ -297,12 +299,14 @@ make locale :
 
 actions update_gettext_po
 {
-    cd $(REDEMPTION_PUBLIC_PATH)/tools/i18n/
-    ./gen_msg_catalog.py -p . -e
-    ./gen_msg_catalog.py -p . -M
+    $(REDEMPTION_PUBLIC_PATH)/tools/i18n/gen_catalog.sh extract
+    $(REDEMPTION_PUBLIC_PATH)/tools/i18n/gen_catalog.sh merge
 }
 explicit update-po ;
 make update-po : : @update_gettext_po ;
+## gettext }
+
+
 
 actions cwd
 {
