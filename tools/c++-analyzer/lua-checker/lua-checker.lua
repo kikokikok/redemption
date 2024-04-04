@@ -25,6 +25,7 @@ local list_checkers = {
     error = true,
     vcfg = true,
     printf = true,
+    trkeys = true,
 }
 
 local utils = require'utils'

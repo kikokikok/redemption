@@ -32,19 +32,13 @@ namespace trkeys
     TR_KV(diagnostic, "Diagnostic");
     TR_KV(connection_closed, "Connection closed");
     TR_KV(OK, "OK");
-    TR_KV(cancel, "Cancel");
-    TR_KV(help, "Help");
     TR_KV(close, "Close");
     TR_KV(refused, "Refused");
     TR_KV(username, "Username");
-    TR_KV(password_expire, "Your Bastion password will expire soon. Please change it.");
     TR_KV(protocol, "Protocol");
     TR_KV(authorization, "Authorization");
     TR_KV(target, "Target");
-    TR_KV(description, "Description");
-    TR_KV(close_time, "Close Time");
     TR_KV(logout, "Logout");
-    TR_KV(apply, "Apply");
     TR_KV(filter, "Filter");
     TR_KV(connect, "Connect");
     TR_KV(timeleft, "Time left");
@@ -82,7 +76,6 @@ namespace trkeys
     TR_KV(target_shadow_fail, "Failed to connect to remote host. Maybe the session invitation has expired.");
     TR_KV(authentification_rdp_fail, "Failed to authenticate with remote RDP host.");
     TR_KV(authentification_vnc_fail, "Failed to authenticate with remote VNC host.");
-    TR_KV(authentification_x_fail, "Failed to authenticate with remote X host.");
     TR_KV(connection_ended, "Connection to server ended.");
     TR_KV(no_results, "No results found");
     TR_KV(back_selector, "Back to Selector");
@@ -100,7 +93,6 @@ namespace trkeys
     TR_KV_FMT(fmt_invalid_format, "Error: %s invalid format.");
     TR_KV_FMT(fmt_toohigh_duration, "Error: %s is too high (max: %d minutes).");
     TR_KV(information, "Information");
-    TR_KV(authentication_required,  "Authentication Required");
     TR_KV(target_info_required, "Target Information Required");
     TR_KV(device, "Device");
 
