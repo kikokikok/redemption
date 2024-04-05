@@ -485,7 +485,7 @@ msgstr "(RemoteApp) L'utilisateur ne peut pas poursuivre le processus de connexi
 
 #: src/utils/trkeys.hpp:194
 msgid "(RemoteApp) The logon process failed."
-msgstr "(RemoteApp) The logon process failed."
+msgstr "(RemoteApp) Le processus de connexion a échoué."
 
 #: src/utils/trkeys.hpp:195
 msgid "(RemoteApp) The logon process has displayed a warning."
