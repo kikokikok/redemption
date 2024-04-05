@@ -63,7 +63,7 @@ def sshkeygen_add_passphrase_private(
     Qn7Oy594TzrT89Y/qms=
     -----END DSA PRIVATE KEY-----
     """
-    prk_fd, prk_path = tempfile.mkstemp(dir='/tmp')
+    prk_fd, prk_path = tempfile.mkstemp(dir=VOLATILE_FOLDER)
     if not isinstance(key, bytes):
         key = key.encode('utf-8')
     if passphrase is None:
