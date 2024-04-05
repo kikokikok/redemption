@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-04 19:30+0200\n"
+"POT-Creation-Date: 2024-04-05 15:02+0200\n"
 "PO-Revision-Date: 2021-03-01 15:52+0100\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -307,182 +307,198 @@ msgstr "L'ordinateur auquel vous essayez de vous connecter vous redirige vers un
 msgid "NLA Authentication Failed."
 msgstr "Échec d'authentification NLA."
 
-#: src/utils/trkeys.hpp:118
+#: src/utils/trkeys.hpp:121
 msgid "TLS certificate changed."
 msgstr "Certificat TLS modifié."
 
-#: src/utils/trkeys.hpp:119
+#: src/utils/trkeys.hpp:122
 msgid "TLS certificate missed."
 msgstr "Certificat TLS manquant."
 
-#: src/utils/trkeys.hpp:120
+#: src/utils/trkeys.hpp:123
 msgid "TLS certificate corrupted."
 msgstr "Certificat TLS corrompu."
 
-#: src/utils/trkeys.hpp:121
+#: src/utils/trkeys.hpp:124
 msgid "TLS certificate is inaccessible."
 msgstr "Certificat TLS inaccessible."
 
-#: src/utils/trkeys.hpp:122
+#: src/utils/trkeys.hpp:126
+msgid "The certificate presented by the target doesn't match the certificate fingerprint stored in the Bastion for this target. Contact your Bastion administrator to delete the existing fingerprint or to change the default behavior of the Bastion when this happens."
+msgstr "Le certificat présenté par la cible ne correspond pas à celui stocké dans le Bastion pour cette cible. Contactez votre administrateur Bastion pour l'ajouter ou pour modifier le comportement par défaut du Bastion lorsque cela se produit."
+
+#: src/utils/trkeys.hpp:127
+msgid "The certificate presented by the target is not stored in the Bastion for this target. Contact your Bastion administrator to add it or to change the behavior of the Bastion when this happens."
+msgstr "Le certificat présenté par la cible n'est pas stocké dans le Bastion pour cette cible. Contactez votre administrateur Bastion pour l'ajouter ou pour modifier le comportement du Bastion lorsque cela se produit."
+
+#: src/utils/trkeys.hpp:128
+msgid "The certificate stored in the Bastion for this target is corrupted."
+msgstr "Le certificat stocké dans le Bastion pour cette cible est corrompu."
+
+#: src/utils/trkeys.hpp:129
+msgid "The certificate stored in the Bastion for this target is inaccessible."
+msgstr "Le certificat stocké dans le Bastion pour cette cible est inaccessible."
+
+#: src/utils/trkeys.hpp:132
 msgid "VNC connection error."
 msgstr "Erreur de connexion VNC."
 
-#: src/utils/trkeys.hpp:123
+#: src/utils/trkeys.hpp:133
 msgid "Unsupported client display monitor layout."
 msgstr "La disposition du moniteur d'affichage du client n'est pas supportée."
 
-#: src/utils/trkeys.hpp:124
+#: src/utils/trkeys.hpp:134
 msgid "RDP negotiation phase failure."
 msgstr "Echec de la phase de negociation."
 
-#: src/utils/trkeys.hpp:125
+#: src/utils/trkeys.hpp:135
 msgid "An error occurred during the licensing protocol."
 msgstr "Une erreur de protocole de licence s'est produite."
 
-#: src/utils/trkeys.hpp:126
+#: src/utils/trkeys.hpp:136
 msgid "The RemoteApp program did not start on the remote computer."
 msgstr "Le programme RemoteApp n'a pas démarré sur l'ordinateur distant."
 
-#: src/utils/trkeys.hpp:127
+#: src/utils/trkeys.hpp:137
 msgid "Cannot start the RemoteApp program."
 msgstr "Impossible de démarrer le programme RemoteApp."
 
-#: src/utils/trkeys.hpp:128
+#: src/utils/trkeys.hpp:138
 msgid "The RemoteApp program is not in the list of authorized programs."
 msgstr "Le programme RemoteApp n'est pas dans la liste des programmes autorisés."
 
-#: src/utils/trkeys.hpp:129
+#: src/utils/trkeys.hpp:139
 msgid "Logon timer expired."
 msgstr "Le délai d'attente d'ouverture de session a expiré."
 
-#: src/utils/trkeys.hpp:130
+#: src/utils/trkeys.hpp:140
 msgid "Unauthorized logon user change detected."
 msgstr "Changement d'utilisateur de connexion non autorisé détecté."
 
-#: src/utils/trkeys.hpp:131
+#: src/utils/trkeys.hpp:141
 msgid "Could not launch Session Probe."
 msgstr "Impossible de lancer Session Probe."
 
-#: src/utils/trkeys.hpp:133
+#: src/utils/trkeys.hpp:143
 msgid "(ASBL) Could not launch Session Probe. File System Virtual Channel is unavailable. Please allow the drive redirection in the Remote Desktop Services settings of the target."
 msgstr "(ASBL) Impossible de lancer Session Probe. Le canal virtuel du système de fichiers n'est pas disponible. Veuillez autorisez la redirection du lecteur dans les paramètres des Services de bureau à distance de la cible."
 
-#: src/utils/trkeys.hpp:136
+#: src/utils/trkeys.hpp:146
 msgid "(ASBL) Could not launch Session Probe. Maybe something blocks it on the target. Is the target running under Microsoft Server products? The Command Prompt should be published as the RemoteApp program and accept any command-line parameters. Please also check the temporary directory to ensure there is enough free space."
 msgstr "(ASBL) Impossible de lancer Session Probe. Peut-être que quelque chose le bloque sur la cible. La cible fonctionne-t-elle sous un produit de famille Microsoft Server ? L'invite de commande doit être publiée comme programme RemoteApp et accepter tout type de paramètres de ligne de commande. Veuillez vérifier également le répertoire temporaire afin d'assurer qu'il y a suffisamment d'espace libre."
 
-#: src/utils/trkeys.hpp:140
+#: src/utils/trkeys.hpp:150
 msgid "(ASBL) Session Probe launch has failed for unknown reason."
 msgstr "(ASBL) Le lancement de Session Probe a échoué pour une raison inconnue."
 
-#: src/utils/trkeys.hpp:142
+#: src/utils/trkeys.hpp:152
 msgid "(CBBL) Could not launch Session Probe. File System Virtual Channel is unavailable. Please allow the drive redirection in the Remote Desktop Services settings of the target."
 msgstr "(CBBL) Impossible de lancer Session Probe. Le canal virtuel du système de fichiers n'est pas disponible. Veuillez autorisez la redirection du lecteur dans les paramètres des Services de bureau à distance de la cible."
 
-#: src/utils/trkeys.hpp:145
+#: src/utils/trkeys.hpp:155
 msgid "(CBBL) Could not launch Session Probe. Clipboard Virtual Channel is unavailable. Please allow the clipboard redirection in the Remote Desktop Services settings of the target."
 msgstr "(CBBL) Impossible de lancer Session Probe. Le canal virtuel du presse-papier n'est pas disponible. Veuillez autorisez la redirection du presse-papier dans les paramètres des Services de bureau à distance de la cible."
 
-#: src/utils/trkeys.hpp:148
+#: src/utils/trkeys.hpp:158
 msgid "(CBBL) Could not launch Session Probe. Drive of Session Probe is not ready yet. Is the target running under Windows Server 2008 R2 or more recent version?"
 msgstr "(CBBL) Impossible de lancer Session Probe. Le lecteur de Session Probe n'est pas encore prêt. La cible fonctionne-t-elle sous Windows Server 2008 R2 ou une version plus récente ?"
 
-#: src/utils/trkeys.hpp:151
+#: src/utils/trkeys.hpp:161
 msgid "(CBBL) Session Probe is not launched. Maybe something blocks it on the target. Please also check the temporary directory to ensure there is enough free space."
 msgstr "(CBBL) Impossible de lancer Session Probe. Peut-être que quelque chose le bloque sur la cible. Veuillez vérifier également le répertoire temporaire afin d'assurer qu'il y a suffisamment d'espace libre."
 
-#: src/utils/trkeys.hpp:154
+#: src/utils/trkeys.hpp:164
 msgid "(CBBL) Session Probe launch cycle has been interrupted. The launch timeout duration may be too short."
 msgstr "(CBBL) Le cycle de lancement de Session Probe a été interrompu. La durée du délai d'attente de lancement peut être trop courte."
 
-#: src/utils/trkeys.hpp:157
+#: src/utils/trkeys.hpp:167
 msgid "(CBBL) Session Probe launch has failed for unknown reason. Please refer to the syslog file for more detailed information regarding the error condition."
 msgstr "(CBBL) Le lancement de Session Probe a échoué pour une raison inconnue. Veuillez vous reporter au fichier syslog pour obtenir des informations plus détaillées concernant la condition d'erreur."
 
-#: src/utils/trkeys.hpp:160
+#: src/utils/trkeys.hpp:170
 msgid "(RP) Could not launch Session Probe. Please refer to the syslog file for more detailed information regarding the error condition."
 msgstr "(RP) Impossible de lancer Session Probe. Veuillez vous reporter au fichier syslog pour obtenir des informations plus détaillées concernant la condition d'erreur."
 
-#: src/utils/trkeys.hpp:162
+#: src/utils/trkeys.hpp:172
 msgid "Unknown backend failure."
 msgstr "Erreur de backend inconnue."
 
-#: src/utils/trkeys.hpp:163
+#: src/utils/trkeys.hpp:173
 msgid "Provided login/password is probably incorrect."
 msgstr "Le nom d'utilisateur/mot de passe fourni est probablement incorrect."
 
-#: src/utils/trkeys.hpp:164
+#: src/utils/trkeys.hpp:174
 msgid "Please wait..."
 msgstr "Veuillez patienter..."
 
-#: src/utils/trkeys.hpp:165
+#: src/utils/trkeys.hpp:175
 msgid "Enable NLA is probably required."
 msgstr "Il est probablement nécessaire d'activer NLA."
 
-#: src/utils/trkeys.hpp:166
+#: src/utils/trkeys.hpp:176
 msgid "Enable TLS is probably required."
 msgstr "Il est probablement nécessaire d'activer TLS."
 
-#: src/utils/trkeys.hpp:167
+#: src/utils/trkeys.hpp:177
 msgid "Please check provided Load Balance Info."
 msgstr "Veuillez vérifier le Load Balance Info fournies."
 
-#: src/utils/trkeys.hpp:168
+#: src/utils/trkeys.hpp:178
 msgid "Fail during TLS security exchange."
 msgstr "Échec lors de l'échange de sécurité TLS."
 
-#: src/utils/trkeys.hpp:169
+#: src/utils/trkeys.hpp:179
 msgid "Remote access may be denied for the user account."
 msgstr "L'accès distant est peut-être refusé pour le compte utilisateur."
 
-#: src/utils/trkeys.hpp:170
+#: src/utils/trkeys.hpp:180
 msgid "Fail during channels connection."
 msgstr "Échec lors de la connexion des canaux."
 
-#: src/utils/trkeys.hpp:171
+#: src/utils/trkeys.hpp:181
 msgid "Failed while trying to get licence."
 msgstr "Échec en essayant d'obtenir une licence."
 
-#: src/utils/trkeys.hpp:172
+#: src/utils/trkeys.hpp:182
 msgid "Fail while connecting session on the target."
 msgstr "Échec lors de la connexion de la session sur la cible."
 
-#: src/utils/trkeys.hpp:175
+#: src/utils/trkeys.hpp:185
 msgid "File being analyzed: "
 msgstr "Fichier en cours d'analyse: "
 
-#: src/utils/trkeys.hpp:176
+#: src/utils/trkeys.hpp:186
 msgid "Valid file: "
 msgstr "Fichier valide: "
 
-#: src/utils/trkeys.hpp:177
+#: src/utils/trkeys.hpp:187
 msgid "Invalid file: "
 msgstr "Fichier invalide: "
 
-#: src/utils/trkeys.hpp:181
+#: src/utils/trkeys.hpp:191
 msgid "(RemoteApp) The logon credentials which were supplied are invalid."
 msgstr "(RemoteApp) Les informations de connexion fournies ne sont pas valides."
 
-#: src/utils/trkeys.hpp:183
+#: src/utils/trkeys.hpp:193
 msgid "(RemoteApp) The user cannot continue with the logon process until the password is changed."
 msgstr "(RemoteApp) L'utilisateur ne peut pas poursuivre le processus de connexion tant que le mot de passe n'est pas modifié."
 
-#: src/utils/trkeys.hpp:184
+#: src/utils/trkeys.hpp:194
 msgid "(RemoteApp) The logon process failed."
 msgstr "(RemoteApp) The logon process failed."
 
-#: src/utils/trkeys.hpp:185
+#: src/utils/trkeys.hpp:195
 msgid "(RemoteApp) The logon process has displayed a warning."
 msgstr "(RemoteApp) Le processus de connexion a affiché un avertissement."
 
-#: src/utils/trkeys.hpp:186
+#: src/utils/trkeys.hpp:196
 msgid "(RemoteApp) Unexpected Error Notification Type."
 msgstr "(RemoteApp) Type de notification d’erreur inattendue."
 
-#: src/utils/trkeys.hpp:189
+#: src/utils/trkeys.hpp:199
 msgid "The recorded file is inaccessible or corrupted."
 msgstr "Le fichier d'enregistrement est inaccessible ou corrompu."
 
-#: src/utils/trkeys.hpp:192
+#: src/utils/trkeys.hpp:202
 msgid "No authentifier available."
 msgstr "Service d'authentification indisponible."

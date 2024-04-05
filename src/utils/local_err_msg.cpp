@@ -22,103 +22,115 @@
 #include "utils/trkeys.hpp"
 #include "core/error.hpp"
 
-TrKey const* local_err_msg(Error const& error) noexcept
+LocalErrMsg LocalErrMsg::from_error(Error const& error) noexcept
 {
     REDEMPTION_DIAGNOSTIC_PUSH()
     REDEMPTION_DIAGNOSTIC_GCC_IGNORE("-Wswitch-enum")
     switch (error.id) {
     case ERR_SESSION_UNKNOWN_BACKEND:
-        return &trkeys::err_session_unknown_backend;
+        return {&trkeys::err_session_unknown_backend};
 
     case ERR_NLA_AUTHENTICATION_FAILED:
-        return &trkeys::err_nla_authentication_failed;
+        return {&trkeys::err_nla_authentication_failed};
 
     case ERR_TRANSPORT_TLS_CERTIFICATE_CHANGED:
-        return &trkeys::err_transport_tls_certificate_changed;
+        return {
+            &trkeys::err_transport_tls_certificate_changed,
+            &trkeys::err_transport_tls_certificate_changed_extra_message,
+        };
 
     case ERR_TRANSPORT_TLS_CERTIFICATE_MISSED:
-        return &trkeys::err_transport_tls_certificate_missed;
+        return {
+            &trkeys::err_transport_tls_certificate_missed,
+            &trkeys::err_transport_tls_certificate_missed_extra_message,
+        };
 
     case ERR_TRANSPORT_TLS_CERTIFICATE_CORRUPTED:
-        return &trkeys::err_transport_tls_certificate_corrupted;
+        return {
+            &trkeys::err_transport_tls_certificate_corrupted,
+            &trkeys::err_transport_tls_certificate_corrupted_extra_message,
+        };
 
     case ERR_TRANSPORT_TLS_CERTIFICATE_INACCESSIBLE:
-        return &trkeys::err_transport_tls_certificate_inaccessible;
+        return {
+            &trkeys::err_transport_tls_certificate_inaccessible,
+            &trkeys::err_transport_tls_certificate_inaccessible_extra_message,
+        };
 
     case ERR_VNC_CONNECTION_ERROR:
-        return &trkeys::err_vnc_connection_error;
+        return {&trkeys::err_vnc_connection_error};
 
     case ERR_RDP_UNSUPPORTED_MONITOR_LAYOUT:
-        return &trkeys::err_rdp_unsupported_monitor_layout;
+        return {&trkeys::err_rdp_unsupported_monitor_layout};
 
     case ERR_RDP_NEGOTIATION:
-        return &trkeys::err_rdp_negotiation;
+        return {&trkeys::err_rdp_negotiation};
 
     case ERR_LIC:
-        return &trkeys::err_lic;
+        return {&trkeys::err_lic};
 
     case ERR_RAIL_CLIENT_EXECUTE:
-        return &trkeys::err_rail_client_execute;
+        return {&trkeys::err_rail_client_execute};
 
     case ERR_RAIL_STARTING_PROGRAM:
-        return &trkeys::err_rail_starting_program;
+        return {&trkeys::err_rail_starting_program};
 
     case ERR_RAIL_UNAUTHORIZED_PROGRAM:
-        return &trkeys::err_rail_unauthorized_program;
+        return {&trkeys::err_rail_unauthorized_program};
 
     case ERR_RDP_OPEN_SESSION_TIMEOUT:
-        return &trkeys::err_rdp_open_session_timeout;
+        return {&trkeys::err_rdp_open_session_timeout};
 
     case ERR_RDP_SERVER_REDIR:
-        return &trkeys::err_rdp_server_redir;
+        return {&trkeys::err_rdp_server_redir};
 
     case ERR_SESSION_PROBE_LAUNCH:
-        return &trkeys::err_session_probe_launch;
+        return {&trkeys::err_session_probe_launch};
 
     case ERR_SESSION_PROBE_ASBL_FSVC_UNAVAILABLE:
-        return &trkeys::err_session_probe_asbl_fsvc_unavailable;
+        return {&trkeys::err_session_probe_asbl_fsvc_unavailable};
 
     case ERR_SESSION_PROBE_ASBL_MAYBE_SOMETHING_BLOCKS:
-        return &trkeys::err_session_probe_asbl_maybe_something_blocks;
+        return {&trkeys::err_session_probe_asbl_maybe_something_blocks};
 
     case ERR_SESSION_PROBE_ASBL_UNKNOWN_REASON:
-        return &trkeys::err_session_probe_asbl_unknown_reason;
+        return {&trkeys::err_session_probe_asbl_unknown_reason};
 
     case ERR_SESSION_PROBE_CBBL_FSVC_UNAVAILABLE:
-        return &trkeys::err_session_probe_cbbl_fsvc_unavailable;
+        return {&trkeys::err_session_probe_cbbl_fsvc_unavailable};
 
     case ERR_SESSION_PROBE_CBBL_CBVC_UNAVAILABLE:
-        return &trkeys::err_session_probe_cbbl_cbvc_unavailable;
+        return {&trkeys::err_session_probe_cbbl_cbvc_unavailable};
 
     case ERR_SESSION_PROBE_CBBL_DRIVE_NOT_READY_YET:
-        return &trkeys::err_session_probe_cbbl_drive_not_ready_yet;
+        return {&trkeys::err_session_probe_cbbl_drive_not_ready_yet};
 
     case ERR_SESSION_PROBE_CBBL_MAYBE_SOMETHING_BLOCKS:
-        return &trkeys::err_session_probe_cbbl_maybe_something_blocks;
+        return {&trkeys::err_session_probe_cbbl_maybe_something_blocks};
 
     case ERR_SESSION_PROBE_CBBL_LAUNCH_CYCLE_INTERRUPTED:
-        return &trkeys::err_session_probe_cbbl_launch_cycle_interrupted;
+        return {&trkeys::err_session_probe_cbbl_launch_cycle_interrupted};
 
     case ERR_SESSION_PROBE_CBBL_UNKNOWN_REASON_REFER_TO_SYSLOG:
-        return &trkeys::err_session_probe_cbbl_unknown_reason_refer_to_syslog;
+        return {&trkeys::err_session_probe_cbbl_unknown_reason_refer_to_syslog};
 
     case ERR_SESSION_PROBE_RP_LAUNCH_REFER_TO_SYSLOG:
-        return &trkeys::err_session_probe_rp_launch_refer_to_syslog;
+        return {&trkeys::err_session_probe_rp_launch_refer_to_syslog};
 
     case ERR_SESSION_CLOSE_ENDDATE_REACHED:
-        return &trkeys::session_out_time;
+        return {&trkeys::session_out_time};
 
     case ERR_MCS_APPID_IS_MCS_DPUM:
-        return &trkeys::end_connection;
+        return {&trkeys::end_connection};
 
     case ERR_SESSION_CLOSE_ACL_KEEPALIVE_MISSED:
-        return &trkeys::miss_keepalive;
+        return {&trkeys::miss_keepalive};
 
     case ERR_SESSION_CLOSE_USER_INACTIVITY:
-        return &trkeys::close_inactivity;
+        return {&trkeys::close_inactivity};
 
     default:
-        return nullptr;
+        return {};
     }
     REDEMPTION_DIAGNOSTIC_POP()
 }

@@ -23,4 +23,10 @@
 class Error;
 class TrKey;
 
-TrKey const* local_err_msg(Error const& error) noexcept;
+struct LocalErrMsg
+{
+    static LocalErrMsg from_error(Error const& error) noexcept;
+
+    TrKey const* msg = nullptr;
+    TrKey const* extra_msg = nullptr;
+};

@@ -1350,12 +1350,21 @@ private:
 
                     switch (end_session_exception(e, ini, mod_factory))
                     {
-                    case EndSessionResult::close_box:
-                        if (TrKey const* k = local_err_msg(e)) {
-                            err_msg_ctx.set_msg(*k);
+                    case EndSessionResult::close_box: {
+                        auto local_err = LocalErrMsg::from_error(e);
+
+                        if (local_err.msg) {
+                            err_msg_ctx.set_msg(*local_err.msg);
                         }
                         else {
                             err_msg_ctx.set_msg(e.errmsg());
+                        }
+
+                        if (local_err.extra_msg) {
+                            str_append(
+                                ini.get_mutable_ref<cfg::context::close_box_extra_message>(),
+                                "\n\n"_av, TR(*local_err.extra_msg, language(ini))
+                            );
                         }
 
                         if (ini.get<cfg::internal_mod::enable_close_box>()) {
@@ -1375,6 +1384,7 @@ private:
                             LOG(LOG_INFO, "Close Box disabled : ending session");
                         }
                         break;
+                    }
 
                     case EndSessionResult::redirection: {
                         // SET new target in ini
