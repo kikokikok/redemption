@@ -33,7 +33,7 @@ WidgetWabClose::WidgetWabClose(
     Events events, const char * diagnostic_text,
     const char * username, const char * target,
     bool showtimer, const char * extra_message, Font const & font, Theme const & theme,
-    Language lang, bool back_selector)
+    Language lang, bool back_to_selector)
 : WidgetComposite(drawable, Focusable::Yes)
 , oncancel(events.oncancel)
 , connection_closed_label(drawable, TR(trkeys::connection_closed, lang).to_sv(),
@@ -59,12 +59,6 @@ WidgetWabClose::WidgetWabClose(
          events.oncancel,
          theme.global.fgcolor, theme.global.bgcolor,
          theme.global.focus_color, 2, font, 6, 2)
-, back(back_selector ? new WidgetButton(drawable, TR(trkeys::back_selector, lang),
-                                        events.onback_to_selector,
-                                        theme.global.fgcolor,
-                                        theme.global.bgcolor,
-                                        theme.global.focus_color, 2, font,
-                                        6, 2) : nullptr)
 , img(drawable,
       theme.global.enable_theme ? theme.global.logo_path.c_str() :
       app_path(AppPath::LoginWabBlue),
@@ -73,6 +67,13 @@ WidgetWabClose::WidgetWabClose(
 , lang(lang)
 , showtimer(showtimer)
 , font(font)
+, back_to_selector_ctx{
+    .onback_to_selector = events.onback_to_selector,
+    .fgcolor = theme.global.fgcolor,
+    .bgcolor = theme.global.bgcolor,
+    .focus_color = theme.global.focus_color,
+}
+, back(back_to_selector ? make_back_to_selector() : std::unique_ptr<WidgetButton>())
 , diagnostic_text(diagnostic_text)
 {
     this->set_bg_color(theme.global.bgcolor);
@@ -122,9 +123,45 @@ WidgetWabClose::WidgetWabClose(
     this->move_size_widget(left, top, width, height);
 }
 
-WidgetWabClose::~WidgetWabClose()
+std::unique_ptr<WidgetButton> WidgetWabClose::make_back_to_selector()
 {
-    delete this->back;
+    return std::make_unique<WidgetButton>(
+        drawable, TR(trkeys::back_selector, lang),
+        back_to_selector_ctx.onback_to_selector,
+        back_to_selector_ctx.fgcolor,
+        back_to_selector_ctx.bgcolor,
+        back_to_selector_ctx.focus_color, 2, font,
+        6, 2
+    );
+}
+
+Rect WidgetWabClose::set_back_to_selector(bool back_to_selector)
+{
+    if (back_to_selector != bool(this->back)) {
+        Rect updated_rect = this->cancel.get_rect();
+        if (this->back) {
+            updated_rect = updated_rect.disjunct(this->back->get_rect());
+            this->remove_widget(*this->back);
+            this->back.reset();
+        }
+        else {
+            this->back = make_back_to_selector();
+            this->add_widget(*this->back);
+        }
+
+        this->move_size_widget(this->x(), this->y(), this->cx(), this->cy());
+
+        if (this->img.y() == this->y()) {
+            return this->get_rect();
+        }
+
+        if (this->back) {
+            updated_rect = updated_rect.disjunct(this->back->get_rect());
+        }
+        return updated_rect.disjunct(this->cancel.get_rect());
+    }
+
+    return Rect();
 }
 
 void WidgetWabClose::move_size_widget(int16_t left, int16_t top, uint16_t width, uint16_t height)
@@ -203,7 +240,6 @@ void WidgetWabClose::move_size_widget(int16_t left, int16_t top, uint16_t width,
         this->diagnostic_value.set_wh(dim);
     }
     else {
-        std::string formatted_diagnostic_text;
         gdi::MultiLineTextMetrics line_metrics(
             this->font, this->diagnostic_text.c_str(),
             (this->diagnostic_label.cx() > this->cx() - (x + 10))

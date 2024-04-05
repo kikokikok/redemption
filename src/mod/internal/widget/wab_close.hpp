@@ -29,6 +29,7 @@
 #include "mod/internal/widget/button.hpp"
 #include "utils/translation.hpp"
 
+#include <memory>
 #include <string>
 #include <chrono>
 
@@ -48,9 +49,10 @@ public:
                    Events events, const char * diagnostic_text,
                    const char * username, const char * target,
                    bool showtimer, const char * extra_message, Font const & font, Theme const & theme,
-                   Language lang, bool back_selector = false); /*NOLINT*/
+                   Language lang, bool back_to_selector = false); /*NOLINT*/
 
-    ~WidgetWabClose();
+    /// \return updated area
+    Rect set_back_to_selector(bool back_to_selector);
 
     void move_size_widget(int16_t left, int16_t top, uint16_t width, uint16_t height);
 
@@ -59,6 +61,16 @@ public:
     void rdp_input_scancode(KbdFlags flags, Scancode scancode, uint32_t event_time, Keymap const& keymap) override;
 
 private:
+    std::unique_ptr<WidgetButton> make_back_to_selector();
+
+    struct BackToSelectorCtx
+    {
+        WidgetEventNotifier onback_to_selector;
+        BGRColor fgcolor;
+        BGRColor bgcolor;
+        BGRColor focus_color;
+    };
+
     WidgetEventNotifier oncancel;
 
     WidgetLabel        connection_closed_label;
@@ -74,21 +86,22 @@ private:
     WidgetLabel        timeleft_value;
 
 public:
-    WidgetButton   cancel;
+    WidgetButton cancel;
 
 private:
-    WidgetButton * back;
-
-    WidgetImage    img;
+    WidgetImage img;
 
     long prev_time;
 
     Language lang;
 
     bool showtimer;
+    bool fixed_format_diagnostic_text;
 
     Font const & font;
 
-    std::string  diagnostic_text;
-    bool         fixed_format_diagnostic_text;
+    BackToSelectorCtx back_to_selector_ctx;
+    std::unique_ptr<WidgetButton> back;
+
+    std::string diagnostic_text;
 };

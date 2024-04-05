@@ -90,6 +90,9 @@ public:
 
     void disconnect();
 
+    [[nodiscard]]
+    bool update_close_mod(ModuleName name);
+
     void create_mod_bouncer();
 
     void create_mod_replay();

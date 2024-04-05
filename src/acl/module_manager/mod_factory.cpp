@@ -215,6 +215,34 @@ struct ModFactory::Impl
     }
 };
 
+
+bool ModFactory::update_close_mod(ModuleName name)
+{
+    if (name != ModuleName::close && name != ModuleName::close_back) {
+        return false;
+    }
+
+    if (current_mod != ModuleName::close && current_mod != ModuleName::close_back) {
+        return false;
+    }
+
+    if (name == ModuleName::close_back) {
+        LOG(LOG_INFO, "----------------------- create_close_mod_back_to_selector() from close_mod -----------------");
+    }
+    else {
+        LOG(LOG_INFO, "----------------------- create_close_mod() from close_mod_back_to_selector -----------------");
+    }
+
+    if (current_mod != name) {
+        current_mod = name;
+        auto& close_box = static_cast<CloseMod&>(mod());
+        auto updated_rect = close_box.set_back_to_selector(name == ModuleName::close_back);
+        close_box.rdp_input_invalidate(updated_rect);
+    }
+
+    return true;
+}
+
 void ModFactory::create_mod_bouncer()
 {
     auto new_mod = new Bouncer2Mod(

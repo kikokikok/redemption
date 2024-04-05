@@ -107,9 +107,15 @@ RED_AUTO_TEST_CASE(TestCloseModSelector)
     keymap.event(Keymap::KbdFlags(), Keymap::Scancode(0x01)); // esc
     d.rdp_input_scancode(Keymap::KbdFlags(), Keymap::Scancode(0x01), 0, keymap);
 
-    event_manager.get_writable_time_base().monotonic_time = MonotonicTimePoint{1s};
+    event_manager.get_writable_time_base().monotonic_time = MonotonicTimePoint{2min};
     event_manager.execute_events([](int){return false;}, false);
 
+    RED_CHECK_IMG(front, IMG_TEST_PATH "close_mod_selector_1.png");
+
+    d.rdp_input_invalidate(d.set_back_to_selector(false));
+    RED_CHECK_IMG(front, IMG_TEST_PATH "close_mod_1.png");
+
+    d.rdp_input_invalidate(d.set_back_to_selector(true));
     RED_CHECK_IMG(front, IMG_TEST_PATH "close_mod_selector_1.png");
 }
 

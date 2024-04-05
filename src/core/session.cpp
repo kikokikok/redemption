@@ -464,7 +464,7 @@ private:
     std::string session_type;
 
     void next_backend_module(
-        ModuleName next_state,
+        ModuleName next_mod,
         SecondarySession& secondary_session,
         ErrorMessageCtx& err_msg_ctx,
         ModFactory& mod_factory,
@@ -475,9 +475,9 @@ private:
         EventManager& event_manager)
     {
         LOG_IF(bool(this->verbose & SessionVerbose::Trace),
-            LOG_INFO, "Current Mod is %s Previous %s",
+            LOG_INFO, "Current Mod is %s ; Next is %s",
             get_module_name(mod_factory.mod_name()),
-            get_module_name(next_state)
+            get_module_name(next_mod)
         );
 
         if (mod_factory.is_connected()) {
@@ -492,11 +492,14 @@ private:
                 LOG(LOG_INFO, "Keep existing capture & session log.");
             }
         }
+        else if (mod_factory.update_close_mod(next_mod)) {
+            return;
+        }
         else {
             mod_factory.disconnect();
         }
 
-        if (is_target_module(next_state)) {
+        if (is_target_module(next_mod)) {
             keepalive.start();
             event_manager.set_time_base(TimeBase::now());
             front.target_connection_start_time = event_manager.get_monotonic_time();
@@ -506,13 +509,13 @@ private:
             front.target_connection_start_time = MonotonicTimePoint();
         }
 
-        if (next_state == ModuleName::INTERNAL) {
-            next_state = get_internal_module_id_from_target(
+        if (next_mod == ModuleName::INTERNAL) {
+            next_mod = get_internal_module_id_from_target(
                 this->ini.get<cfg::context::target_host>()
             );
         }
 
-        LOG(LOG_INFO, "New Module: %s", get_module_name(next_state));
+        LOG(LOG_INFO, "New Module: %s", get_module_name(next_mod));
 
         auto open_secondary_session = [&](SecondarySession::Type secondary_session_type){
             log_siem::set_user(this->ini.get<cfg::globals::auth_user>());
@@ -550,7 +553,7 @@ private:
             }
         };
 
-        switch (next_state)
+        switch (next_mod)
         {
         case ModuleName::RDP:
             open_secondary_session(SecondarySession::Type::RDP);
@@ -666,7 +669,7 @@ private:
 
         case ModuleName::INTERNAL:
         case ModuleName::UNKNOWN:
-            LOG(LOG_INFO, "ModuleManager::Unknown backend exception %u", unsigned(next_state));
+            LOG(LOG_INFO, "ModuleManager::Unknown backend exception %u", unsigned(next_mod));
             throw Error(ERR_SESSION_UNKNOWN_BACKEND);
         }
     }
