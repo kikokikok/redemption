@@ -28,6 +28,7 @@
 #include "acl/license_api.hpp"
 #include "acl/acl_field_mask.hpp"
 
+#include "core/events.hpp"
 #include "core/channels_authorizations.hpp"
 
 #include "core/RDP/MonitorLayoutPDU.hpp"

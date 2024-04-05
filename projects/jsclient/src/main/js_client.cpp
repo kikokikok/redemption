@@ -25,6 +25,7 @@ Author(s): Jonathan Poelen
 #include "acl/auth_api.hpp"
 #include "acl/license_api.hpp"
 #include "configs/config.hpp"
+#include "core/events.hpp"
 #include "core/client_info.hpp"
 #include "core/channels_authorizations.hpp"
 #include "client/common/new_mod_rdp.hpp"
@@ -33,6 +34,7 @@ Author(s): Jonathan Poelen
 #include "utils/random.hpp"
 #include "utils/redirection_info.hpp"
 #include "utils/theme.hpp"
+#include "utils/error_message_ctx.hpp"
 #include "gdi/osd_api.hpp"
 
 #include "red_emscripten/bind.hpp"
@@ -242,6 +244,7 @@ class RdpClient
 
     JsRandom js_rand;
     NullSessionLog session_log;
+    ErrorMessageCtx err_msg_ctx;
     NullLicenseStore license_store;
     RedirectionInfo redir_info;
 
@@ -414,8 +417,6 @@ public:
         set_if(config, "performAutomaticReconnection", rdp_params.perform_automatic_reconnection);
 
         set_if(config, "splitDomain", rdp_params.split_domain);
-
-        rdp_params.error_message = &ini.get_mutable_ref<cfg::context::auth_error_message>();
         //@}
 
 
@@ -424,8 +425,8 @@ public:
         }
 
         this->mod = new_mod_rdp(
-            trans, gd, osd, event_manager.get_events(), session_log, front, client_info,
-            redir_info, js_rand, ChannelsAuthorizations("*"_zv, ""_zv),
+            trans, gd, osd, event_manager.get_events(), session_log, err_msg_ctx, front,
+            client_info, redir_info, js_rand, ChannelsAuthorizations("*"_zv, ""_zv),
             rdp_params, TlsConfig{},
             license_store, ini, nullptr, this->mod_rdp_factory);
     }
