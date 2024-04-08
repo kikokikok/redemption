@@ -121,9 +121,9 @@ using gcc : : g++ -DREDEMPTION_DISABLE_NO_BOOST_PREPROCESSOR_WARNING ;
 using gcc : 8.0 : g++-8 -DREDEMPTION_DISABLE_NO_BOOST_PREPROCESSOR_WARNING ;
 using clang : : clang++ -DREDEMPTION_DISABLE_NO_BOOST_PREPROCESSOR_WARNING -Wno-reserved-identifier ;
 " > project-config.jam
-valgrind_compiler=gcc-8
+valgrind_compiler=gcc-12
 toolset_gcc=toolset=gcc
-toolset_wab=toolset=gcc-8
+toolset_wab=toolset=gcc-12
 gcovbin=gcov
 toolset_clang=toolset=clang
 
