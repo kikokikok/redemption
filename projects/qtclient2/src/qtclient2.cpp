@@ -21,6 +21,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "utils/set_exception_handler_pretty_message.hpp"
 #include "utils/sugar/unique_fd.hpp"
 #include "utils/theme.hpp"
+#include "utils/error_message_ctx.hpp"
 #include "system/urandom.hpp"
 
 #include "qtclient/socket.hpp"
@@ -148,6 +149,7 @@ int main(int argc, char** argv)
     gdi::NullOsd osd;
     qtclient::EventManager event_manager;
     NullSessionLog session_log;
+    ErrorMessageCtx err_msg_ctx;
     RedirectionInfo redir_info;
     ModRdpFactory mod_rdp_factory;
     NullLicenseStore license_store;
@@ -197,7 +199,7 @@ int main(int argc, char** argv)
     // TODO new_mod_vnc
     auto mod = new_mod_rdp(
         socket, *screen, osd, event_manager.event_container,
-        session_log, front, client_info, redir_info, rnd,
+        session_log, err_msg_ctx, front, client_info, redir_info, rnd,
         channels_authorizations, mod_rdp_params, tls_config,
         license_store, ini, nullptr, mod_rdp_factory
     );

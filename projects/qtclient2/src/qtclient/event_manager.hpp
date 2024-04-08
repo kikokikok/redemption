@@ -8,7 +8,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "core/events.hpp"
 #include "core/error.hpp"
-#include "utils/basic_notifier_function.hpp"
+#include "utils/basic_function.hpp"
 
 #include <QtCore/QTimer>
 #include <QtCore/QSocketNotifier>
@@ -37,7 +37,7 @@ struct EventManager
     TimeBase const& update_times();
 
     EventContainer event_container;
-    BasicNotifierFunction<Error&> exception_notifier;
+    BasicFunction<void(Error&)> exception_notifier = NullFunction();
 
 private:
     struct FdEvent
