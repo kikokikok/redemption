@@ -20,6 +20,8 @@ Author(s): Proxies Team
 
 #pragma once
 
+#include "utils/sugar/byte_copy.hpp"
+
 #include <ctime>
 #include <cstring>
 
@@ -121,8 +123,7 @@ namespace dateformats
                 "Dec "
             ;
 
-            memcpy(p, months + tm.tm_mon * 4, 4);
-            p += 4;
+            p = byte_copy(p, {months + tm.tm_mon * 4, 4});
             p = detail::push_2digits(p, tm.tm_mday);
             *p++ = ' ';
             p = detail::push_2digits(p, (1900 + tm.tm_year) / 100);

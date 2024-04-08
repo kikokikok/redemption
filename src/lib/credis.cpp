@@ -23,6 +23,7 @@ Author(s): Proxies Team
 #include "capture/redis.hpp"
 #include "utils/c_interface.hpp"
 #include "utils/static_string.hpp"
+#include "utils/sugar/byte_copy.hpp"
 #include "utils/sugar/int_to_chars.hpp"
 #include "utils/uninit_buffer.hpp"
 
@@ -78,14 +79,12 @@ struct CRedisBuffer
 
         void push(bytes_view av) noexcept
         {
-            std::memcpy(p, av.data(), av.size());
-            p += av.size();
+            p = byte_copy(p, av);
         }
 
         void move(bytes_view av) noexcept
         {
-            std::memmove(p, av.data(), av.size());
-            p += av.size();
+            p = byte_move(p, av);
         }
     };
 

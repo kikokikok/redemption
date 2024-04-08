@@ -21,8 +21,8 @@
 #include "capture/fdx_capture.hpp"
 #include "utils/sugar/array_view.hpp"
 #include "utils/sugar/to_sv.hpp"
+#include "utils/sugar/byte_copy.hpp"
 #include "utils/strutils.hpp"
-#include "utils/fileutils.hpp"
 #include "utils/fileutils.hpp"
 
 #include <array>
@@ -35,20 +35,15 @@ TflSuffixGenerator::string_type TflSuffixGenerator::name_at(uint64_t i)
 {
     constexpr auto empty_suffix = "000000"_av;
 
-    auto cpy = [](char* p, chars_view av){
-        memcpy(p, av.data(), av.size());
-        return p + av.size();
-    };
-
     return TflSuffixGenerator::string_type::from_builder([&](delayed_build_string_buffer buffer){
         char* p = buffer.data();
         *p++ = ',';
         auto num_str = int_to_decimal_chars(i);
         if (num_str.size() < empty_suffix.size()) {
-            p = cpy(p, empty_suffix.drop_back(num_str.size()));
+            p = byte_copy(p, empty_suffix.drop_back(num_str.size()));
         }
-        p = cpy(p, num_str);
-        p = cpy(p, ".tfl"_av);
+        p = byte_copy(p, num_str);
+        p = byte_copy(p, ".tfl"_av);
         return buffer.set_end_string_ptr(p);
     });
 }

@@ -20,6 +20,7 @@ Author(s): Jonathan Poelen
 
 #include "capture/session_update_buffer.hpp"
 #include "utils/sugar/numerics/safe_conversions.hpp"
+#include "utils/sugar/byte_copy.hpp"
 
 #include <cstring>
 
@@ -86,10 +87,9 @@ void SessionUpdateBuffer::append(MonotonicTimePoint time, LogId id, KVLogList kv
     event->kv_list = KVLogList{{logs, kv_list.size()}};
 
     auto push_s = [&s](chars_view chars) {
-        auto r = s;
-        std::memcpy(s, chars.data(), chars.size());
-        s += chars.size();
-        return chars_view{r, chars.size()};
+        auto str = chars_view{s, chars.size()};
+        s = byte_copy(s, chars);
+        return str;
     };
 
     for (auto const& kv : kv_list) {
