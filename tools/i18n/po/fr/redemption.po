@@ -150,10 +150,6 @@ msgstr ""
 "Exemple :\n"
 "   ?account=my_account&?device=my_device"
 
-#: src/utils/trkeys.hpp:70
-msgid "Selector"
-msgstr "Sélecteur"
-
 #: src/utils/trkeys.hpp:71
 msgid "Session is out of allowed timeframe"
 msgstr "L'autorisation de la session a expiré"

@@ -67,7 +67,6 @@ namespace trkeys
           "Use the \"&\" separator to combine several search criteria.\n"
           "Example:\n"
           "    ?account=my_account&?device=my_device");
-    TR_KV(selector, "Selector");
     TR_KV(session_out_time, "Session is out of allowed timeframe");
     TR_KV(miss_keepalive, "Missed keepalive from ACL");
     TR_KV(close_inactivity, "Connection closed on inactivity");

@@ -133,10 +133,6 @@ msgid ""
 "    ?account=my_account&?device=my_device"
 msgstr ""
 
-#: src/utils/trkeys.hpp:70
-msgid "Selector"
-msgstr ""
-
 #: src/utils/trkeys.hpp:71
 msgid "Session is out of allowed timeframe"
 msgstr ""

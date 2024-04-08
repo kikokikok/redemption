@@ -35,7 +35,6 @@ using CloseModVariables = vcfg::variables<
     vcfg::var<cfg::context::target_protocol, vcfg::accessmode::ask>,
     vcfg::var<cfg::internal_mod::close_box_timeout, vcfg::accessmode::get>,
     vcfg::var<cfg::globals::target_application, vcfg::accessmode::get>,
-    vcfg::var<cfg::context::module, vcfg::accessmode::get>,
     vcfg::var<cfg::translation::language, vcfg::accessmode::get>,
     vcfg::var<cfg::context::close_box_extra_message, vcfg::accessmode::get | vcfg::accessmode::set>
 >;

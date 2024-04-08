@@ -38,23 +38,18 @@ static WidgetWabClose build_close_widget(
 
         explicit temporary_text(CloseModVariables vars)
         {
-            if (vars.get<cfg::context::module>() == ModuleName::selector) {
-                snprintf(text, sizeof(text), "%s", TR(trkeys::selector, language(vars)).c_str());
+            // TODO target_application only used for user message,
+            // the two branches of alternative should be unified et message prepared by sesman
+            if (!vars.get<cfg::globals::target_application>().empty()) {
+                snprintf(
+                    text, sizeof(text), "%s",
+                    vars.get<cfg::globals::target_application>().c_str());
             }
             else {
-                // TODO target_application only used for user message,
-                // the two branches of alternative should be unified et message prepared by sesman
-                if (!vars.get<cfg::globals::target_application>().empty()) {
-                    snprintf(
-                        text, sizeof(text), "%s",
-                        vars.get<cfg::globals::target_application>().c_str());
-                }
-                else {
-                    snprintf(
-                        text, sizeof(text), "%s@%s",
-                        vars.get<cfg::globals::target_user>().c_str(),
-                        vars.get<cfg::globals::target_device>().c_str());
-                }
+                snprintf(
+                    text, sizeof(text), "%s@%s",
+                    vars.get<cfg::globals::target_user>().c_str(),
+                    vars.get<cfg::globals::target_device>().c_str());
             }
         }
     };

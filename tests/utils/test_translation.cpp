@@ -58,9 +58,8 @@ RED_AUTO_TEST_CASE(TestTranslation)
     RED_CHECK_EQUAL(TR(trkeys::before_closing, lang),    "before closing");
     RED_CHECK_EQUAL(TR(trkeys::manager_close_cnx, lang), "Connection closed by manager.");
     RED_CHECK_EQUAL(TR(trkeys::end_connection, lang),    "End of connection");
-    RED_CHECK_EQUAL(TR(trkeys::selector, lang),           "Selector");
-    RED_CHECK_EQUAL(TR(trkeys::session_out_time, lang),   "Session is out of allowed timeframe");
-    RED_CHECK_EQUAL(TR(trkeys::miss_keepalive, lang),     "Missed keepalive from ACL");
-    RED_CHECK_EQUAL(TR(trkeys::close_inactivity, lang),   "Connection closed on inactivity");
-    RED_CHECK_EQUAL(TR(trkeys::acl_fail, lang),           "Authentifier service failed");
+    RED_CHECK_EQUAL(TR(trkeys::session_out_time, lang),  "Session is out of allowed timeframe");
+    RED_CHECK_EQUAL(TR(trkeys::miss_keepalive, lang),    "Missed keepalive from ACL");
+    RED_CHECK_EQUAL(TR(trkeys::close_inactivity, lang),  "Connection closed on inactivity");
+    RED_CHECK_EQUAL(TR(trkeys::acl_fail, lang),          "Authentifier service failed");
 }
