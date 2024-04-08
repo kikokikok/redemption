@@ -68,7 +68,7 @@ OutFilenameSequenceTransport::OutFilenameSequenceTransport(
     const char * const filename,
     const char * const extension,
     FilePermissions file_permissions,
-    std::function<void(const Error & error)> notify_error)
+    FileTransport::ErrorNotifier notify_error)
 : filegen_(prefix, filename, extension)
 , buf_(invalid_fd(), std::move(notify_error))
 , file_permissions_(file_permissions)

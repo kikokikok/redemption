@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include <functional>
-
 #include "capture/mwrm3.hpp"
 #include "transport/crypto_transport.hpp"
 #include "utils/static_string.hpp"
@@ -106,7 +104,7 @@ struct FdxCapture
         std::string fdx_filebase, std::string_view sid,
         FilePermissions file_permissions,
         CryptoContext& cctx, Random& rnd,
-        std::function<void(const Error & error)> notify_error);
+        FileTransport::ErrorNotifier notify_error);
 
     TflFile new_tfl(Mwrm3::Direction direction);
 
@@ -130,7 +128,7 @@ private:
 
     CryptoContext& cctx;
     Random& rnd;
-    std::function<void(const Error & error)> notify_error;
+    FileTransport::ErrorNotifier notify_error;
     FilePermissions file_permissions;
 
     OutCryptoTransport out_crypto_transport;

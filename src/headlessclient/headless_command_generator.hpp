@@ -7,7 +7,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 
 #include "keyboard/kbdtypes.hpp"
-#include "utils/basic_notifier_function.hpp"
+#include "utils/basic_function.hpp"
 #include "utils/monotonic_clock.hpp"
 #include "utils/sugar/array_view.hpp"
 #include "core/callback.hpp"
@@ -34,7 +34,7 @@ struct HeadlessCommandGenerator
     using KbdFlags = kbdtypes::KbdFlags;
     using KeyLocks = kbdtypes::KeyLocks;
 
-    using Notifier = BasicNotifierFunction<Status, chars_view, std::size_t /*updated_column*/>;
+    using Notifier = BasicFunction<void(Status, chars_view, std::size_t /*updated_column*/)>;
 
     struct DelayConfig
     {

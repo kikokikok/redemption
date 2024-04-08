@@ -108,7 +108,7 @@ FdxCapture::FdxCapture(
     std::string fdx_filebase, std::string_view sid,
     FilePermissions file_permissions,
     CryptoContext& cctx, Random& rnd,
-    std::function<void(const Error & error)> notify_error)
+    FileTransport::ErrorNotifier notify_error)
 : name_generator(
     record_path = remove_end_slash(record_path),
     hash_path = remove_end_slash(hash_path),

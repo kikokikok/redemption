@@ -47,7 +47,7 @@ public:
     {
         WidgetEventNotifier onsubmit;
         WidgetEventNotifier oncancel;
-        WidgetEventNotifier onctrl_shift = {};
+        WidgetEventNotifier onctrl_shift {};
     };
 
     WidgetDialogBase(

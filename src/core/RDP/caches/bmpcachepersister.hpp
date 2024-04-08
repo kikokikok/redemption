@@ -27,9 +27,9 @@
 #include "utils/fileutils.hpp"
 #include "utils/sugar/unique_fd.hpp"
 #include "utils/sugar/int_to_chars.hpp"
+#include "utils/basic_function.hpp"
 
 #include <unordered_map>
-#include <functional>
 
 
 namespace RDP {
@@ -421,7 +421,7 @@ inline void save_persistent_disk_bitmap_cache(
     const char * persistent_path,
     const char * target_host,
     BitsPerPixel bpp,
-    std::function<void(const Error & error)> notify_error,
+    FileTransport::ErrorNotifier notify_error,
     BmpCachePersister::Verbose verbose
 )
 {

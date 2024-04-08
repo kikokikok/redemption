@@ -90,6 +90,6 @@ size_t FileTransport::do_partial_read(uint8_t * buffer, size_t len)
 
 void FileTransport::throw_error(const Error & error)
 {
-    this->_notify_error(error);
+    this->notify_error(error);
     throw Error(error);
 }

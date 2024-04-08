@@ -171,7 +171,7 @@ public:
 
     explicit OutCryptoTransport(
         CryptoContext & cctx, Random & rnd,
-        std::function<void(const Error & error)> notify_error
+        FileTransport::ErrorNotifier notify_error
     ) noexcept;
 
     [[nodiscard]] const char * get_finalname() const noexcept { return this->finalname; }

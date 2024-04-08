@@ -33,7 +33,7 @@ public:
         const char * const filename,
         const char * const extension,
         FilePermissions file_permissions,
-        std::function<void(const Error & error)> notify_error);
+        FileTransport::ErrorNotifier notify_error);
 
     ~OutFilenameSequenceTransport();
 

@@ -86,7 +86,7 @@ namespace
 
 SessionLogFile::SessionLogFile(
     CryptoContext& cctx, Random& rnd, Debug enable_debug,
-    std::function<void(const Error &)> notify_error)
+    FileTransport::ErrorNotifier notify_error)
 : enable_debug(safe_int(enable_debug))
 , ct(cctx, rnd, std::move(notify_error))
 {

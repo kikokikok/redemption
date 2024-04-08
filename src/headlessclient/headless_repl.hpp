@@ -18,7 +18,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "headlessclient/headless_path.hpp"
 #include "headlessclient/input_collector.hpp"
 #include "utils/uninit_buffer.hpp"
-#include "utils/basic_notifier_function.hpp"
+#include "utils/basic_function.hpp"
 
 
 struct HeadlessRepl final : FrontAPI, SessionLogApi, private RdpInput
@@ -233,7 +233,7 @@ public:
         RecorderTransport,
     };
 
-    BasicNotifierFunction<PathType, zstring_view> path_notifier;
+    BasicFunction<void(PathType, zstring_view)> path_notifier = NullFunction();
 
 private:
     SessionEventGuard* session_event = nullptr;

@@ -38,10 +38,10 @@
 #include "mod/rdp/rdp_verbose.hpp"
 #include "mod/rdp/rdp_negociation_data.hpp"
 #include "utils/crypto/ssl_lib.hpp"
+#include "utils/basic_function.hpp"
 #include "acl/auth_api.hpp"
 #include "keyboard/keylayout.hpp"
 
-#include <functional>
 #include <vector>
 #include <memory>
 #include <array>
@@ -95,7 +95,7 @@ private:
 
     private:
         friend class RdpNegociation;
-        std::function<CertificateResult(X509&)> certificate_callback;
+        BasicFunction<CertificateResult(X509&)> certificate_callback;
 
         const ServerCertCheck server_cert_check;
         std::string certif_path;
@@ -233,7 +233,7 @@ public:
 
     void set_program(char const* program, char const* directory) noexcept;
 
-    void set_cert_callback(std::function<CertificateResult(X509&)> callback);
+    void set_cert_callback(BasicFunction<CertificateResult(X509&)> callback);
 
     void start_negociation();
     bool recv_data(TpduBuffer& buf);

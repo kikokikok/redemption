@@ -20,14 +20,14 @@ Author(s): Jonathan Poelen
 
 #pragma once
 
-#include <functional>
+#include "utils/basic_function.hpp"
 
 class FdxCapture;
 
 // TODO RdpChannelFactory ?
 struct ModRdpFactory
 {
-    std::function<FdxCapture*()> get_fdx_capture = []{ return static_cast<FdxCapture*>(nullptr); };
+    BasicFunction<FdxCapture*()> get_fdx_capture = NullFunctionWithDefaultResult();
     // should be within get_clipboard_channel()
     bool always_file_storage = false;
     std::string tmp_dir;

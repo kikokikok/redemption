@@ -20,16 +20,21 @@
 
 #pragma once
 
-#include <functional>
 #include "transport/transport.hpp"
 #include "utils/sugar/unique_fd.hpp"
+#include "utils/basic_function.hpp"
 
 
 struct FileTransport : Transport
 {
-    explicit FileTransport(unique_fd fd, std::function<void(const Error & error)> notify_error = [](const Error&){}) noexcept /*NOLINT*/
+    using ErrorNotifier = BasicFunction<void(const Error &)>;
+
+    explicit FileTransport(
+        unique_fd fd,
+        ErrorNotifier notify_error = NullFunction() /*NOLINT*/
+    ) noexcept
     : file(std::move(fd))
-    , _notify_error(std::move(notify_error))
+    , notify_error(notify_error)
     {}
 
     bool disconnect() override
@@ -70,7 +75,7 @@ protected:
 
 private:
     unique_fd file;
-    std::function<void(const Error & error)> _notify_error;
+    ErrorNotifier notify_error;
 };
 
 

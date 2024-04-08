@@ -43,7 +43,7 @@ public:
 
     SessionLogFile(
         CryptoContext & cctx, Random & rnd, Debug enable_debug,
-        std::function<void(const Error & error)> notify_error);
+        FileTransport::ErrorNotifier notify_error);
 
     ~SessionLogFile();
 

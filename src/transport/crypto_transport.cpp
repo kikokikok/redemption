@@ -663,7 +663,7 @@ ocrypto::Result ocrypto::write(bytes_view data)
 
 OutCryptoTransport::OutCryptoTransport(
     CryptoContext & cctx, Random & rnd,
-    std::function<void(const Error & error)> notify_error
+    FileTransport::ErrorNotifier notify_error
 ) noexcept
 : encrypter(cctx, rnd)
 , out_file(invalid_fd(), std::move(notify_error))

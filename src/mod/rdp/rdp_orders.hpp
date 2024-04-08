@@ -27,10 +27,10 @@
 #include <string>
 
 #include <cinttypes>
-#include <functional>
 
 #include "utils/log.hpp"
 #include "utils/stream.hpp"
+#include "utils/basic_function.hpp"
 
 #include "core/RDP/protocol.hpp"
 
@@ -116,7 +116,7 @@ private:
 #ifndef __EMSCRIPTEN__
     bool        enable_persistent_disk_bitmap_cache;
     bool        persist_bitmap_cache_on_disk;
-    std::function<void(const Error & error)> notify_error;
+    FileTransport::ErrorNotifier notify_error;
 #endif
 
     sespro_api& sespro;
@@ -124,7 +124,7 @@ private:
 public:
     rdp_orders( const char * target_host, bool enable_persistent_disk_bitmap_cache
         , bool persist_bitmap_cache_on_disk, bool silent_reject_windowing_orders
-        , RDPVerbose verbose, std::function<void(const Error & error)> notify_error
+        , RDPVerbose verbose, BasicFunction<void(Error const&)> notify_error
         , sespro_api& sespro)
     : common(RDP::PATBLT, Rect(0, 0, 1, 1))
     , memblt(0, Rect(), 0, 0, 0, 0)

@@ -123,7 +123,6 @@ struct RdpData
                 this->ctx_error.down_target_name,
                 err.errmsg()
             );
-            return err;
         })
         , service(this->trans, verbose)
         {}
@@ -231,8 +230,10 @@ class ModRDPWithSocket final : public RdpData, public mod_rdp
 {
 private:
     std::unique_ptr<FdxCapture> fdx_capture;
+    Random & gen;
+    Inifile & ini;
+    CryptoContext & cctx;
 
-public:
     FdxCapture* get_fdx_capture(Random & gen, Inifile & ini, CryptoContext & cctx)
     {
         if (!this->fdx_capture) {
@@ -258,6 +259,14 @@ public:
         return this->fdx_capture.get();
     }
 
+public:
+    auto get_fdx_capture_fn()
+    {
+        return [this]{
+            return get_fdx_capture(gen, ini, cctx);
+        };
+    }
+
     ModRDPWithSocket(
         gdi::OsdApi & osd
       , Inifile & ini
@@ -272,6 +281,7 @@ public:
       , const ClientInfo & info
       , RedirectionInfo & redir_info
       , Random & gen
+      , CryptoContext & cctx
       , const ChannelsAuthorizations & channels_authorizations
       , const ModRDPParams & mod_rdp_params
       , const TlsConfig & tls_config
@@ -287,6 +297,9 @@ public:
         , channels_authorizations, mod_rdp_params, tls_config
         , license_store
         , vars, file_validator_service, this->get_rdp_factory())
+    , gen(gen)
+    , ini(ini)
+    , cctx(cctx)
     {}
 };
 
@@ -889,6 +902,7 @@ ModPack create_mod_rdp(
         client_info,
         redir_info,
         gen,
+        cctx,
         channels_authorizations,
         mod_rdp_params,
         tls_config,
@@ -917,9 +931,7 @@ ModPack create_mod_rdp(
                 }
                 [[fallthrough]];
             case RdpStoreFile::always:
-                factory.get_fdx_capture = [mod = new_mod.get(), &gen, &ini, &cctx]{
-                    return mod->get_fdx_capture(gen, ini, cctx);
-                };
+                factory.get_fdx_capture = new_mod->get_fdx_capture_fn();
         }
     }
 

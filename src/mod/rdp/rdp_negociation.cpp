@@ -53,7 +53,6 @@
 
 #include "system/tls_check_certificate.hpp"
 
-#include <functional>
 #include <cstring>
 
 
@@ -69,7 +68,8 @@ RdpNegociation::RDPServerNotifier::RDPServerNotifier(
     ServerNotification server_cert_error_message,
     RDPVerbose verbose
 ) noexcept
-: server_cert_check(server_cert_check)
+: certificate_callback(NullFunctionWithDefaultResult())
+, server_cert_check(server_cert_check)
 , certif_path(std::move(certif_path))
 , server_cert_store(server_cert_store)
 , server_status_messages([&]{
@@ -344,7 +344,7 @@ void RdpNegociation::set_program(char const* program, char const* directory) noe
     utils::strlcpy(this->directory, directory);
 }
 
-void RdpNegociation::set_cert_callback(std::function<CertificateResult(X509&)> callback)
+void RdpNegociation::set_cert_callback(BasicFunction<CertificateResult(X509&)> callback)
 {
     this->server_notifier.certificate_callback = std::move(callback);
 }
