@@ -24,6 +24,8 @@
 
 #include "capture/mwrm3.hpp"
 #include "transport/crypto_transport.hpp"
+#include "utils/static_string.hpp"
+#include "utils/sugar/int_to_chars.hpp"
 
 #include <string>
 #include <string_view>
@@ -33,7 +35,10 @@
 
 struct TflSuffixGenerator
 {
-    std::string next()
+    // number + ",{number}.tfl"
+    using string_type = static_string<buffer_size_of_uint64_to_chars + 5>;
+
+    string_type next()
     {
         ++this->idx;
         return name_at(this->idx);
@@ -44,7 +49,7 @@ struct TflSuffixGenerator
         return Mwrm3::FileId(this->idx);
     }
 
-    static std::string name_at(uint64_t i);
+    static string_type name_at(uint64_t i);
 
 private:
     uint64_t idx = 0;

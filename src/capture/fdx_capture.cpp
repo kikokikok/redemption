@@ -20,7 +20,9 @@
 
 #include "capture/fdx_capture.hpp"
 #include "utils/sugar/array_view.hpp"
+#include "utils/sugar/to_sv.hpp"
 #include "utils/strutils.hpp"
+#include "utils/fileutils.hpp"
 #include "utils/fileutils.hpp"
 
 #include <array>
@@ -29,36 +31,26 @@
 #include <charconv>
 
 
-std::string TflSuffixGenerator::name_at(uint64_t i)
+TflSuffixGenerator::string_type TflSuffixGenerator::name_at(uint64_t i)
 {
-    constexpr int count_max_digit_prefix = 6;
+    constexpr auto empty_suffix = "000000"_av;
 
-    char path[
-        1 +
-        count_max_digit_prefix +
-        std::numeric_limits<uint64_t>::digits10 + 2 +
-        4
-    ];
+    auto cpy = [](char* p, chars_view av){
+        memcpy(p, av.data(), av.size());
+        return p + av.size();
+    };
 
-    char* p = path + 1;
-
-    for (auto* pend = p + count_max_digit_prefix; p < pend; ++p) {
-        *p = '0';
-    }
-
-    std::to_chars_result const chars_result = std::to_chars(p, std::end(path), i);
-    std::ptrdiff_t const len = std::distance(p, chars_result.ptr);
-
-    auto prefix_len = (len >= count_max_digit_prefix ? 0 : count_max_digit_prefix - len);
-    auto* first = p - prefix_len;
-    auto* last = p + len;
-    *--first = ',';
-    *last++ = '.';
-    *last++ = 't';
-    *last++ = 'f';
-    *last++ = 'l';
-
-    return std::string(first, last);
+    return TflSuffixGenerator::string_type::from_builder([&](delayed_build_string_buffer buffer){
+        char* p = buffer.data();
+        *p++ = ',';
+        auto num_str = int_to_decimal_chars(i);
+        if (num_str.size() < empty_suffix.size()) {
+            p = cpy(p, empty_suffix.drop_back(num_str.size()));
+        }
+        p = cpy(p, num_str);
+        p = cpy(p, ".tfl"_av);
+        return buffer.set_end_string_ptr(p);
+    });
 }
 
 
@@ -79,10 +71,10 @@ void FdxNameGenerator::next_tfl()
     auto const suffix_filename = this->tfl_suffix_generator.next();
 
     this->record_path.erase(this->pos_end_record_suffix);
-    this->record_path += suffix_filename;
+    this->record_path += to_sv(suffix_filename);
 
     this->hash_path.erase(this->pos_end_hash_suffix);
-    this->hash_path += suffix_filename;
+    this->hash_path += to_sv(suffix_filename);
 }
 
 std::string_view FdxNameGenerator::get_current_relative_path() const noexcept

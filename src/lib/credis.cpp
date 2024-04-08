@@ -653,7 +653,7 @@ CRedisCmdSet* credis_cmd_set_new(char const* key_name,
 
     CRedisCmdSet* ret;
 
-    std::size_t cmd_set_end_len = detail::int_to_chars_buf_size + 2 /* number + \r\n */;
+    std::size_t cmd_set_end_len = buffer_size_of_uint64_to_chars + 2 /* number + \r\n */;
     CHECK_NOTHROW(
         ret = new(voidp2) CRedisCmdSet(start_capacity,
                                        prefix_len + cmd_set_end_len,
@@ -693,7 +693,7 @@ int credis_cmd_set_free_buffer(CRedisCmdSet* cmd, std::size_t start_capacity)
     SCOPED_TRACE;
 
     cmd->free();
-    std::size_t cmd_set_end_len = detail::int_to_chars_buf_size + 2 /* number + \r\n */;
+    std::size_t cmd_set_end_len = buffer_size_of_uint64_to_chars + 2 /* number + \r\n */;
 
     return CHECK_NOTHROW_INT_R(
         cmd->reset(start_capacity,

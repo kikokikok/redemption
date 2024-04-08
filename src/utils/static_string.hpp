@@ -130,9 +130,23 @@ struct static_string
     using size_type = std::size_t;
     using msize_type = detail::select_minimal_size_t<N>;
 
+    struct delayed_build_t {};
+
     static_string() noexcept
     {
         m_str[0] = '\0';
+    }
+
+    template<class Builder>
+    static_string(delayed_build_t, Builder&& builder)
+    {
+        delayed_build(builder);
+    }
+
+    template<class Builder>
+    static static_string from_builder(Builder&& builder)
+    {
+        return static_string(delayed_build_t(), builder);
     }
 
     // C++20: default version when N < 128|256

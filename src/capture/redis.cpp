@@ -75,7 +75,7 @@ std::size_t RedisCmdSet::reserved_buffer_size() const noexcept
 {
     return preformatted_header_set_pos
         + (preformatted_size - preformatted_header_set_pos) * 2
-        + detail::int_to_chars_buf_size + 2;
+        + buffer_size_of_uint64_to_chars + 2;
 }
 
 void RedisCmdSet::clear()
