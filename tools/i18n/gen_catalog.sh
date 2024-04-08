@@ -17,6 +17,9 @@ for a in "$@"; do
     fi
 done
 
+if [[ ${1:-} = c* && -n ${2:-} ]]; then
+    mo_dir_base="$(realpath -m "$2")"
+fi
 
 cd "$(dirname "$0")/../.."
 
@@ -68,9 +71,9 @@ c|compile) # mo_dir ([<locale>] | 'all')
     }
 
     if (( $# == 3 )) && [[ $3 == 'all' ]] || (( $# == 2 )) ; then
-        each_locale compile "$2"
+        each_locale compile "$mo_dir_base"
     elif (( $# == 3 )); then
-        compile "$3" "$2"
+        compile "$3" "$mo_dir_base"
     else
         usage_and_exit
     fi
