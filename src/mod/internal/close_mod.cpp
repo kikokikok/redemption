@@ -23,33 +23,35 @@
 #include "mod/internal/close_mod.hpp"
 #include "utils/timebase.hpp"
 #include "utils/trkeys.hpp"
+#include "utils/strutils.hpp"
+
 
 static WidgetWabClose build_close_widget(
     gdi::GraphicApi & drawable,
     Rect const widget_rect,
-    char const* message,
+    chars_view message,
     CloseModVariables vars,
     Font const& font, Theme const& theme, bool back_selector,
     WidgetWabClose::Events events)
 {
-    struct temporary_text
+    struct str_target_builder
     {
-        char text[255];
+        char const* text;
+        char buffer[255];
 
-        explicit temporary_text(CloseModVariables vars)
+        explicit str_target_builder(CloseModVariables vars)
         {
             // TODO target_application only used for user message,
             // the two branches of alternative should be unified et message prepared by sesman
             if (!vars.get<cfg::globals::target_application>().empty()) {
-                snprintf(
-                    text, sizeof(text), "%s",
-                    vars.get<cfg::globals::target_application>().c_str());
+                text = vars.get<cfg::globals::target_application>().c_str();
             }
             else {
                 snprintf(
-                    text, sizeof(text), "%s@%s",
+                    buffer, sizeof(buffer), "%s@%s",
                     vars.get<cfg::globals::target_user>().c_str(),
                     vars.get<cfg::globals::target_device>().c_str());
+                text = buffer;
             }
         }
     };
@@ -58,18 +60,22 @@ static WidgetWabClose build_close_widget(
         vars.is_asked<cfg::globals::auth_user>()
      || vars.is_asked<cfg::globals::target_device>());
 
+    auto const& extra_message = vars.get<cfg::context::close_box_extra_message>();
+
     return WidgetWabClose(
-        drawable, widget_rect.x, widget_rect.y, widget_rect.cx, widget_rect.cy,
-        events, message,
+        drawable, widget_rect.x, widget_rect.y, widget_rect.cx, widget_rect.cy, events,
+        extra_message.empty()
+            ? message.as<std::string>()
+            : str_concat(message, extra_message[0] == ' ' ? ""_av : "\n\n"_av, extra_message),
         is_asked ? nullptr : vars.get<cfg::globals::auth_user>().c_str(),
-        is_asked ? nullptr : temporary_text(vars).text,
+        is_asked ? nullptr : str_target_builder(vars).text,
         true,
-        vars.get<cfg::context::close_box_extra_message>().c_str(),
-        font, theme, language(vars), back_selector);
+        font, theme, language(vars), back_selector
+    );
 }
 
 CloseMod::CloseMod(
-    char const* message,
+    chars_view message,
     CloseModVariables vars,
     EventContainer& events,
     gdi::GraphicApi & gd,

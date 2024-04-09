@@ -26,6 +26,8 @@
 #include "mod/internal/widget/wab_close.hpp"
 #include "configs/config_access.hpp"
 #include "core/events.hpp"
+#include "utils/sugar/array_view.hpp"
+
 
 using CloseModVariables = vcfg::variables<
     vcfg::var<cfg::globals::auth_user, vcfg::accessmode::get | vcfg::accessmode::is_asked>,
@@ -43,7 +45,7 @@ class CloseMod : public RailInternalModBase
 {
 public:
     CloseMod(
-        char const* message,
+        chars_view message,
         CloseModVariables vars,
         EventContainer& events,
         gdi::GraphicApi & gd,

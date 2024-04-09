@@ -30,9 +30,9 @@
 WidgetWabClose::WidgetWabClose(
     gdi::GraphicApi & drawable,
     int16_t left, int16_t top, int16_t width, int16_t height,
-    Events events, const char * diagnostic_text,
+    Events events, std::string diagnostic_text,
     const char * username, const char * target,
-    bool showtimer, const char * extra_message, Font const & font, Theme const & theme,
+    bool showtimer, Font const & font, Theme const & theme,
     Language lang, bool back_to_selector)
 : WidgetComposite(drawable, Focusable::Yes)
 , oncancel(events.oncancel)
@@ -49,7 +49,7 @@ WidgetWabClose::WidgetWabClose(
                theme.global.fgcolor, theme.global.bgcolor, font)
 , diagnostic_label(drawable, "Diagnostic:",
                    theme.global.fgcolor, theme.global.bgcolor, font)
-, diagnostic_value(drawable, diagnostic_text,
+, diagnostic_value(drawable, "" /* set later with width */,
                    theme.global.fgcolor, theme.global.bgcolor, font)
 , timeleft_label(drawable, "Time left:",
                 theme.global.fgcolor, theme.global.bgcolor, font)
@@ -74,7 +74,7 @@ WidgetWabClose::WidgetWabClose(
     .focus_color = theme.global.focus_color,
 }
 , back(back_to_selector ? make_back_to_selector() : std::unique_ptr<WidgetButton>())
-, diagnostic_text(diagnostic_text)
+, diagnostic_text(std::move(diagnostic_text))
 {
     this->set_bg_color(theme.global.bgcolor);
     this->add_widget(this->img);
@@ -113,13 +113,6 @@ WidgetWabClose::WidgetWabClose(
         this->add_widget(*this->back);
     }
 
-    this->fixed_format_diagnostic_text =
-        (this->diagnostic_text.find('\n') != std::string::npos);
-
-    if (!this->fixed_format_diagnostic_text && extra_message && *extra_message) {
-        str_append(this->diagnostic_text, ' ', extra_message);
-    }
-
     this->move_size_widget(left, top, width, height);
 }
 
@@ -143,13 +136,27 @@ Rect WidgetWabClose::set_back_to_selector(bool back_to_selector)
             updated_rect = updated_rect.disjunct(this->back->get_rect());
             this->remove_widget(*this->back);
             this->back.reset();
+
+            this->cancel.set_xy(
+                this->x() + (this->cx() - this->cancel.cx()) / 2,
+                this->cancel.y()
+            );
         }
         else {
             this->back = make_back_to_selector();
-            this->add_widget(*this->back);
-        }
+            this->back->set_wh(this->back->get_optimal_dim());
 
-        this->move_size_widget(this->x(), this->y(), this->cx(), this->cy());
+            this->add_widget(*this->back);
+
+            this->cancel.set_xy(
+                this->x() + (this->cx() - (this->cancel.cx() + this->back->cx() + 10)) / 2,
+                this->cancel.y()
+            );
+            this->back->set_xy(
+                this->cancel.x() + this->cancel.cx() + 10,
+                this->cancel.y()
+            );
+        }
 
         if (this->img.y() == this->y()) {
             return this->get_rect();
@@ -235,21 +242,14 @@ void WidgetWabClose::move_size_widget(int16_t left, int16_t top, uint16_t width,
 
     this->diagnostic_label.set_xy(this->diagnostic_label.x(), top + y);
 
+    this->diagnostic_value.set_text(gdi::MultiLineTextMetrics(
+        this->font, this->diagnostic_text.c_str(),
+        (this->diagnostic_label.cx() > this->cx() - (x + 10))
+            ? this->separator.cx()
+            : this->separator.cx() - x)
+    );
     dim = this->diagnostic_value.get_optimal_dim();
-    if (this->fixed_format_diagnostic_text) {
-        this->diagnostic_value.set_wh(dim);
-    }
-    else {
-        gdi::MultiLineTextMetrics line_metrics(
-            this->font, this->diagnostic_text.c_str(),
-            (this->diagnostic_label.cx() > this->cx() - (x + 10))
-                ? this->separator.cx()
-                : this->separator.cx() - x);
-        this->diagnostic_value.set_wh(
-            line_metrics.max_width(),
-            std::max(int(this->font.max_height() * line_metrics.lines().size()), int(dim.h)));
-        this->diagnostic_value.set_text(std::move(line_metrics));
-    }
+    this->diagnostic_value.set_wh(dim);
 
     if (this->diagnostic_label.cx() > this->cx() - (x + 10)) {
         y += this->diagnostic_label.cy() + 10;
@@ -297,7 +297,7 @@ void WidgetWabClose::move_size_widget(int16_t left, int16_t top, uint16_t width,
     this->img.set_wh(dim);
 
     this->img.set_xy(left + (this->cx() - this->img.cx()) / 2,
-                        top + (3*(height - y) / 2 - this->img.cy()) / 2 + y);
+                     top + (3*(height - y) / 2 - this->img.cy()) / 2 + y);
     if (this->img.y() + this->img.cy() > top + height) {
         this->img.set_xy(this->img.x(), top);
     }

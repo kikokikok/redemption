@@ -171,7 +171,7 @@ struct ModFactory::Impl
         }
 
         auto new_mod = new CloseMod(
-            message.c_str(),
+            message.to_sv(),
             self.ini,
             self.events,
             self.graphics,

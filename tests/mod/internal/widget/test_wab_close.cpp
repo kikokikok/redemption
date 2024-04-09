@@ -37,13 +37,13 @@ struct TestWidgetCloseCtx
     WidgetWabClose flat_wab_close;
 
     TestWidgetCloseCtx(
-        const char * diagnostic_text, const char * username, const char * target,
+        std::string diagnostic_text, const char * username, const char * target,
         bool showtimer, Theme theme = Theme(),
         WidgetEventNotifier oncancel = WidgetEventNotifier())
     : flat_wab_close(
         drawable, 0, 0, 800, 600, {oncancel, WidgetEventNotifier()},
         diagnostic_text, username, target,
-        showtimer, nullptr, global_font_deja_vu_14(), theme, Language::en, false)
+        showtimer, global_font_deja_vu_14(), theme, Language::en, false)
     {
         flat_wab_close.init_focus();
     }

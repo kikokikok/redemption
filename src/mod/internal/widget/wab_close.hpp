@@ -29,8 +29,8 @@
 #include "mod/internal/widget/button.hpp"
 #include "utils/translation.hpp"
 
-#include <memory>
 #include <string>
+#include <memory>
 #include <chrono>
 
 class Theme;
@@ -46,9 +46,9 @@ public:
 
     WidgetWabClose(gdi::GraphicApi & drawable,
                    int16_t left, int16_t top, int16_t width, int16_t height,
-                   Events events, const char * diagnostic_text,
+                   Events events, std::string diagnostic_text,
                    const char * username, const char * target,
-                   bool showtimer, const char * extra_message, Font const & font, Theme const & theme,
+                   bool showtimer, Font const & font, Theme const & theme,
                    Language lang, bool back_to_selector = false); /*NOLINT*/
 
     /// \return updated area
@@ -96,7 +96,6 @@ private:
     Language lang;
 
     bool showtimer;
-    bool fixed_format_diagnostic_text;
 
     Font const & font;
 

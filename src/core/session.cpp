@@ -1361,9 +1361,8 @@ private:
                         }
 
                         if (local_err.extra_msg) {
-                            str_append(
-                                ini.get_mutable_ref<cfg::context::close_box_extra_message>(),
-                                "\n\n"_av, TR(*local_err.extra_msg, language(ini))
+                            ini.set<cfg::context::close_box_extra_message>(
+                                TR(*local_err.extra_msg, language(ini))
                             );
                         }
 
