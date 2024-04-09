@@ -1837,17 +1837,10 @@ void FileSystemDriveManager::process_device_IO_request(
     if (drive_iter == this->managed_drives.end()) {
         LOG(LOG_WARNING,
             "FileSystemDriveManager::process_device_IO_request: "
-                "Unknown device? Send unsuccessful response. DeviceId=%u "
+                "Unknown device? Ignore this I/O request. DeviceId=%u "
                 "MajorFunction=%u MinorFunction=%u",
             DeviceId, device_io_request.MajorFunction(),
             device_io_request.MinorFunction());
-
-        ManagedFileSystemObject::SendClientDriveIoUnsuccessfulResponse(
-            device_io_request,
-            "FileSystemDriveManager::process_device_IO_request",
-            to_server_sender,
-            this->async_task_container,
-            verbose);
 
         return;
     }
