@@ -24,14 +24,14 @@
 #include "gdi/graphic_api.hpp"
 
 WidgetTooltip::WidgetTooltip(
-    gdi::GraphicApi & drawable, const char * text,
+    gdi::GraphicApi & drawable, const char * text, unsigned max_width,
     Color fgcolor, Color bgcolor, Color border_color,
     Font const & font
 )
     : Widget(drawable, Focusable::No)
     , w_border(10)
     , h_border(10)
-    , desc(drawable, text, fgcolor, bgcolor, font, 0, 0)
+    , desc(drawable, text, max_width, fgcolor, bgcolor, font, 0, 0)
     , border_color(border_color)
 {
 }

@@ -49,8 +49,7 @@ WidgetWabClose::WidgetWabClose(
                theme.global.fgcolor, theme.global.bgcolor, font)
 , diagnostic_label(drawable, "Diagnostic:",
                    theme.global.fgcolor, theme.global.bgcolor, font)
-, diagnostic_value(drawable, "" /* set later with width */,
-                   theme.global.fgcolor, theme.global.bgcolor, font)
+, diagnostic_value(drawable, theme.global.fgcolor, theme.global.bgcolor, font)
 , timeleft_label(drawable, "Time left:",
                 theme.global.fgcolor, theme.global.bgcolor, font)
 , timeleft_value(drawable, nullptr,

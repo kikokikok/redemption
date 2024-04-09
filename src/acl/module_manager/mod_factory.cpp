@@ -430,7 +430,7 @@ void ModFactory::create_wait_info_mod()
         this->client_info.screen_info.height,
         this->rail_client_execute.adjust_rect(this->client_info.get_widget_rect()),
         caption,
-        this->ini.get<cfg::context::message>().c_str(),
+        this->ini.get<cfg::context::message>(),
         this->rail_client_execute,
         this->glyphs,
         this->theme,

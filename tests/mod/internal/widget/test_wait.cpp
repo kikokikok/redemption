@@ -45,7 +45,7 @@ struct TestWidgetWaitCtx
         "Invalid Target",
         "Target \"trucmuch@machinbidule:serv\" is not allowed because you either\n"
         "has no right to access it or it does not exist.\n"
-        "you can either return to selector or exit.",
+        "you can either return to selector or exit."_av,
         nullptr, global_font_deja_vu_14(), []{
             Theme colors;
             colors.global.bgcolor = DARK_BLUE_BIS;

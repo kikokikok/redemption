@@ -43,7 +43,7 @@ RED_AUTO_TEST_CASE(TraceWidgetTooltip)
     int16_t y = 10;
     const char * tooltiptext = "testémq";
 
-    WidgetTooltip wtooltip(drawable, tooltiptext, fg_color, bg_color, border_color, global_font_deja_vu_14());
+    WidgetTooltip wtooltip(drawable, tooltiptext, 4096, fg_color, bg_color, border_color, global_font_deja_vu_14());
     Dimension dim = wtooltip.get_optimal_dim();
     wtooltip.set_wh(dim);
     wtooltip.set_xy(x, y);

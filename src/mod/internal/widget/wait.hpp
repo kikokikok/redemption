@@ -28,6 +28,9 @@
 #include "mod/internal/widget/form.hpp"
 #include "mod/internal/widget/button.hpp"
 
+#include <string>
+
+
 class WidgetWait : public WidgetComposite
 {
 public:
@@ -41,7 +44,7 @@ public:
 
     WidgetWait(
         gdi::GraphicApi & drawable, CopyPaste & copy_paste, Rect const widget_rect,
-        Events events, const char* caption, const char * text,
+        Events events, const char* caption, chars_view text,
         WidgetButton * extra_button,
         Font const & font, Theme const & theme, Language lang,
         bool showform = false, unsigned flags = WidgetForm::NONE,
@@ -70,4 +73,6 @@ private:
 
     bool hasform;
     bool hide_back_to_selector;
+
+    std::string message_dialog;
 };

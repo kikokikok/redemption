@@ -26,7 +26,7 @@
 
 
 WidgetMultiLine::WidgetMultiLine(
-    gdi::GraphicApi & drawable, char const* text,
+    gdi::GraphicApi & drawable,
     Color fgcolor, Color bgcolor, Font const & font,
     int xtext, int ytext)
 : Widget(drawable, Focusable::Yes)
@@ -36,13 +36,16 @@ WidgetMultiLine::WidgetMultiLine(
 , bg_color(bgcolor)
 , fg_color(fgcolor)
 , font(font)
-{
-    this->set_text(text, 4048 /* long line*/);
-}
+{}
 
-void WidgetMultiLine::set_text(const char * text)
+WidgetMultiLine::WidgetMultiLine(
+    gdi::GraphicApi & drawable,
+    const char * text, unsigned max_width,
+    Color fgcolor, Color bgcolor, Font const & font,
+    int xtext, int ytext)
+: WidgetMultiLine(drawable, fgcolor, bgcolor, font, xtext, ytext)
 {
-    this->set_text(text, this->cx());
+    this->set_text(text, max_width);
 }
 
 void WidgetMultiLine::set_text(const char * text, unsigned max_width)

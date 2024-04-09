@@ -44,7 +44,7 @@ struct TestWidgetMultiLineCtx
 
     TestWidgetMultiLineCtx(char const* text, int xtext = 0, int ytext = 0)
     : wmultiline(
-        drawable, text, BLUE, CYAN,
+        drawable, text, 4096, BLUE, CYAN,
         global_font_deja_vu_14(), xtext, ytext)
     {
         wmultiline.set_wh(wmultiline.get_optimal_dim());

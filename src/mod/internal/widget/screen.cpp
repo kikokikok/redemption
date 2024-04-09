@@ -63,12 +63,11 @@ void WidgetScreen::show_tooltip(
 
         this->tooltip_mouse_area = mouse_area;
         this->tooltip = std::make_unique<WidgetTooltip>(
-            this->drawable, "",
+            this->drawable, text, this->cx(),
             this->theme.tooltip.fgcolor,
             this->theme.tooltip.bgcolor,
             this->theme.tooltip.border_color,
             this->font);
-        this->tooltip->set_text(text, this->cx());
         Dimension dim = this->tooltip->get_optimal_dim();
         this->tooltip->set_wh(dim);
 

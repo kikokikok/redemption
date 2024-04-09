@@ -31,7 +31,7 @@ WaitMod::WaitMod(
     EventContainer& events,
     gdi::GraphicApi & drawable,
     FrontAPI & front, uint16_t width, uint16_t height,
-    Rect const widget_rect, const char * caption, const char * message,
+    Rect const widget_rect, const char * caption, chars_view message,
     ClientExecute & rail_client_execute, Font const& font, Theme const& theme,
     CopyPaste& copy_paste, bool showform, uint32_t flag
 )

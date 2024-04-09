@@ -32,7 +32,7 @@ constexpr unsigned HIDE_BACK_TO_SELECTOR = 0x10000;
 
 WidgetWait::WidgetWait(
     gdi::GraphicApi & drawable, CopyPaste & copy_paste, Rect const widget_rect,
-    Events events, const char* caption, const char * text,
+    Events events, const char* caption, chars_view text,
     WidgetButton * extra_button,
     Font const & font, Theme const & theme, Language lang,
     bool showform, unsigned flags, std::chrono::minutes duration_max
@@ -43,7 +43,7 @@ WidgetWait::WidgetWait(
     , onctrl_shift(events.onctrl_shift)
     , groupbox(drawable, caption,
                theme.global.fgcolor, theme.global.bgcolor, font)
-    , dialog(drawable, text,
+    , dialog(drawable,
              theme.global.fgcolor, theme.global.bgcolor, font,
              WIDGET_MULTILINE_BORDER_X, WIDGET_MULTILINE_BORDER_Y)
     , form(drawable, copy_paste, {events.onconfirm, events.onrefused},
@@ -57,6 +57,7 @@ WidgetWait::WidgetWait(
     , extra_button(extra_button)
     , hasform(showform)
     , hide_back_to_selector(flags & HIDE_BACK_TO_SELECTOR)
+    , message_dialog(text.as<std::string>())
 {
     this->set_bg_color(theme.global.bgcolor);
     this->groupbox.add_widget(this->dialog);
@@ -94,6 +95,7 @@ void WidgetWait::move_size_widget(int16_t left, int16_t top, uint16_t width, uin
 
     int y = 20;
 
+    this->dialog.set_text(this->message_dialog.c_str(), width - 60);
     Dimension dim = this->dialog.get_optimal_dim();
     this->dialog.set_wh(dim);
     this->dialog.set_xy(left + 30, top + y + 10);
