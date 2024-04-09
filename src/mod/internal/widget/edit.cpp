@@ -21,7 +21,7 @@
 
 #include "core/RDP/orders/RDPOrdersPrimaryOpaqueRect.hpp"
 #include "core/font.hpp"
-#include "gdi/graphic_api.hpp"
+#include "gdi/draw_utils.hpp"
 #include "gdi/text_metrics.hpp"
 #include "keyboard/keymap.hpp"
 #include "mod/internal/widget/edit.hpp"
@@ -191,22 +191,7 @@ void WidgetEdit::rdp_input_invalidate(Rect clip)
 
 void WidgetEdit::draw_border(Rect clip, Color color)
 {
-    //top
-    this->drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-        this->x(), this->y(), this->cx() - 1, 1
-    )), color), clip, gdi::ColorCtx::depth24());
-    //left
-    this->drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-        this->x(), this->y() + 1, 1, this->cy() - 2
-    )), color), clip, gdi::ColorCtx::depth24());
-    //right
-    this->drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-        this->x() + this->cx() - 1, this->y(), 1, this->cy()
-    )), color), clip, gdi::ColorCtx::depth24());
-    //bottom
-    this->drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-        this->x(), this->y() + this->cy() - 1, this->cx(), 1
-    )), color), clip, gdi::ColorCtx::depth24());
+    gdi_draw_border(drawable, color, get_rect(), 1, clip, gdi::ColorCtx::depth24());
 }
 
 Rect WidgetEdit::get_cursor_rect() const

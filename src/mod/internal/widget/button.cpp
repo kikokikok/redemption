@@ -22,7 +22,7 @@
 #include "mod/internal/widget/button.hpp"
 #include "mod/internal/widget/label.hpp"
 #include "core/RDP/orders/RDPOrdersPrimaryOpaqueRect.hpp"
-#include "gdi/graphic_api.hpp"
+#include "gdi/draw_utils.hpp"
 #include "utils/sugar/cast.hpp"
 #include "utils/utf.hpp"
 #include "keyboard/keymap.hpp"
@@ -139,22 +139,7 @@ void WidgetButton::draw(
 
     // border
     if (border_width) {
-        //top
-        drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-                rect.x, rect.y, rect.cx - border_width, border_width
-                )), fg_color), rect, color_ctx);
-        //left
-        drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-                rect.x, rect.y + border_width, border_width, rect.cy - border_width
-                )), fg_color), rect, color_ctx);
-        //right
-        drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-                rect.x + rect.cx - border_width, rect.y, border_width, rect.cy
-                )), fg_color), rect, color_ctx);
-        //bottom
-        drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-                rect.x, rect.y + rect.cy - border_width, rect.cx, border_width
-                )), fg_color), rect, color_ctx);
+        gdi_draw_border(drawable, fg_color, rect, border_width, clip, color_ctx);
     }
 }
 

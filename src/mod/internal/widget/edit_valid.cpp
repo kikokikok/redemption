@@ -25,7 +25,7 @@
 #include "mod/internal/widget/edit.hpp"
 #include "mod/internal/widget/button.hpp"
 #include "core/RDP/orders/RDPOrdersPrimaryOpaqueRect.hpp"
-#include "gdi/graphic_api.hpp"
+#include "gdi/draw_utils.hpp"
 
 namespace
 {
@@ -189,22 +189,7 @@ void WidgetEditValid::rdp_input_invalidate(Rect clip)
 
 void WidgetEditValid::draw_border(const Rect clip, Color color)
 {
-    //top
-    this->drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-        this->x(), this->y(), this->cx() - 1, 1
-    )), color), clip, gdi::ColorCtx::depth24());
-    //left
-    this->drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-        this->x(), this->y() + 1, 1, this->cy() - /*2*/1
-    )), color), clip, gdi::ColorCtx::depth24());
-    //right
-    this->drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-        this->x() + this->cx() - 1, this->y(), 1, this->cy()
-    )), color), clip, gdi::ColorCtx::depth24());
-    //bottom
-    this->drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-        this->x(), this->y() + this->cy() - 1, this->cx(), 1
-    )), color), clip, gdi::ColorCtx::depth24());
+    gdi_draw_border(drawable, color, get_rect(), 1, clip, gdi::ColorCtx::depth24());
 }
 
 void WidgetEditValid::focus(int reason)

@@ -22,7 +22,6 @@
 #include "gdi/graphic_api.hpp"
 #include "core/RDP/orders/RDPOrdersPrimaryOpaqueRect.hpp"
 #include "core/RDP/orders/RDPOrdersPrimaryPatBlt.hpp"
-#include "utils/rect.hpp"
 
 void gdi_clear_screen(gdi::GraphicApi& drawable, Dimension dim)
 {

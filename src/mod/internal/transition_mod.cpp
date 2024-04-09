@@ -19,28 +19,60 @@
  */
 
 #include "mod/internal/transition_mod.hpp"
+#include "gdi/text_metrics.hpp"
+#include "gdi/draw_utils.hpp"
+#include "core/font.hpp"
+#include "core/RDP/orders/RDPOrdersPrimaryOpaqueRect.hpp"
 
 TransitionMod::TransitionMod(
-    char const * message,
+    chars_view message,
     gdi::GraphicApi & drawable,
     uint16_t width, uint16_t height,
     Rect const widget_rect, ClientExecute & rail_client_execute, Font const& font,
     Theme const& theme
 )
     : RailInternalModBase(drawable, width, height, rail_client_execute, font, theme, nullptr)
-    , ttmessage(drawable, message, 4048,
-                theme.tooltip.fgcolor, theme.tooltip.bgcolor,
-                theme.tooltip.border_color, font)
+    , ttmessage(truncated_bounded_array_view(message))
+    , drawable(drawable)
+    , font(font)
+    , widget_rect(widget_rect)
+    , fgcolor(theme.tooltip.fgcolor)
+    , bgcolor(theme.tooltip.bgcolor)
+    , border_color(theme.tooltip.border_color)
 {
-    Dimension dim = this->ttmessage.get_optimal_dim();
-    this->ttmessage.set_wh(dim);
-    this->ttmessage.set_xy(widget_rect.x + (widget_rect.cx - dim.w) / 2,
-                           widget_rect.y + (widget_rect.cy - dim.h) / 2);
-    this->ttmessage.rdp_input_invalidate(this->ttmessage.get_rect());
     this->set_mod_signal(BACK_EVENT_NONE);
+    this->rdp_input_invalidate(widget_rect);
 }
 
-TransitionMod::~TransitionMod() = default;
+void TransitionMod::rdp_input_invalidate(Rect r)
+{
+    Rect const clip = r.intersect(widget_rect);
+
+    if (!clip.isempty()) {
+        int padding = 20;
+        int width = gdi::TextMetrics(font, ttmessage.c_str()).width + padding * 2;
+        int height = this->font.max_height() + padding * 2;
+        int x = widget_rect.x + (widget_rect.cx - width) / 2;
+        int y = widget_rect.y + (widget_rect.cy - height) / 2;
+
+        auto color_ctx = gdi::ColorCtx::depth24();
+        encode_color24 encode;
+
+        Rect area(x, y, width, height);
+
+        drawable.draw(
+            RDPOpaqueRect(area, encode(bgcolor)),
+            clip, gdi::ColorCtx::depth24()
+        );
+        gdi::server_draw_text(
+            drawable, font,
+            x + padding, y + padding,
+            ttmessage.c_str(), encode(fgcolor), encode(bgcolor),
+            color_ctx, clip
+        );
+        gdi_draw_border(drawable, encode(border_color), area, 1, clip, color_ctx);
+    }
+}
 
 void TransitionMod::rdp_input_scancode(
     KbdFlags flags, Scancode scancode, uint32_t event_time, Keymap const& keymap)

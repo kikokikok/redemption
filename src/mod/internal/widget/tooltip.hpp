@@ -46,8 +46,6 @@ public:
 
     using Widget::set_wh;
 
-    void draw_border(const Rect clip);
-
 private:
     uint w_border;
     uint h_border;

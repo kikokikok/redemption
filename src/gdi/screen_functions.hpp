@@ -20,7 +20,8 @@
 
 #pragma once
 
-class Dimension;
+#include "utils/rect.hpp"
+
 namespace gdi
 {
     class GraphicApi;

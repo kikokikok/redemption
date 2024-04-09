@@ -21,7 +21,7 @@
 
 #include "mod/internal/widget/tooltip.hpp"
 #include "core/RDP/orders/RDPOrdersPrimaryOpaqueRect.hpp"
-#include "gdi/graphic_api.hpp"
+#include "gdi/draw_utils.hpp"
 
 WidgetTooltip::WidgetTooltip(
     gdi::GraphicApi & drawable, const char * text, unsigned max_width,
@@ -72,7 +72,11 @@ void WidgetTooltip::rdp_input_invalidate(Rect clip)
             RDPOpaqueRect(this->get_rect(), this->desc.get_bg_color()),
             rect_intersect, gdi::ColorCtx::depth24());
         this->desc.rdp_input_invalidate(rect_intersect);
-        this->draw_border(rect_intersect);
+
+        gdi_draw_border(
+            drawable, this->border_color, this->get_rect(), 1,
+            rect_intersect, gdi::ColorCtx::depth24()
+        );
     }
 }
 
@@ -86,24 +90,4 @@ void WidgetTooltip::set_wh(uint16_t w, uint16_t h)
 {
     Widget::set_wh(w, h);
     this->desc.set_wh(w -  2 * w_border, h - 2 * h_border);
-}
-
-void WidgetTooltip::draw_border(const Rect clip)
-{
-    //top
-    this->drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-        this->x(), this->y(), this->cx() - 1, 1
-    )), this->border_color), clip, gdi::ColorCtx::depth24());
-    //left
-    this->drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-        this->x(), this->y() + 1, 1, this->cy() - 2
-    )), this->border_color), clip, gdi::ColorCtx::depth24());
-    //right
-    this->drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-        this->x() + this->cx() - 1, this->y(), 1, this->cy()
-    )), this->border_color), clip, gdi::ColorCtx::depth24());
-    //bottom
-    this->drawable.draw(RDPOpaqueRect(clip.intersect(Rect(
-        this->x(), this->y() + this->cy() - 1, this->cx() - 1, 1
-    )), this->border_color), clip, gdi::ColorCtx::depth24());
 }

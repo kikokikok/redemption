@@ -24,26 +24,32 @@
 
 #pragma once
 
-#include "mod/internal/widget/tooltip.hpp"
 #include "mod/internal/rail_mod_base.hpp"
+#include "utils/static_string.hpp"
 
 class TransitionMod : public RailInternalModBase
 {
 public:
     TransitionMod(
-        char const * message,
+        chars_view message,
         gdi::GraphicApi & drawable,
         uint16_t width, uint16_t height,
         Rect const widget_rect, ClientExecute & rail_client_execute, Font const& font,
         Theme const& theme
     );
 
-    ~TransitionMod() override;
-
     void rdp_input_scancode(KbdFlags flags, Scancode scancode, uint32_t event_time, Keymap const& keymap) override;
+
+    void rdp_input_invalidate(Rect r) override;
 
     void acl_update(AclFieldMask const&/* acl_fields*/) override {}
 
 private:
-    WidgetTooltip ttmessage;
+    static_string<127> ttmessage;
+    gdi::GraphicApi & drawable;
+    Font const& font;
+    Rect widget_rect;
+    BGRColor fgcolor;
+    BGRColor bgcolor;
+    BGRColor border_color;
 };

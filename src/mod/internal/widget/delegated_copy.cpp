@@ -22,7 +22,7 @@
 #include "core/RDP/orders/RDPOrdersPrimaryOpaqueRect.hpp"
 #include "core/font.hpp"
 #include "mod/internal/widget/delegated_copy.hpp"
-#include "gdi/graphic_api.hpp"
+#include "gdi/draw_utils.hpp"
 #include "gdi/text_metrics.hpp"
 #include "utils/sugar/cast.hpp"
 #include "utils/utf.hpp"
@@ -73,14 +73,7 @@ void WidgetDelegatedCopy::draw(
     rect.cx -= xicon * 2;
     rect.cy -= yicon * 2;
 
-    // left
-    drawRect(rect.x, rect.y + 1, 1, rect.cy - 1);
-    // right
-    drawRect(rect.eright() - 1, rect.y + 1, 1, rect.cy - 1);
-    // top
-    drawRect(rect.x, rect.y + 1, rect.cx, 1);
-    // bottom
-    drawRect(rect.x, rect.ebottom() - 1, rect.cx, 1);
+    gdi_draw_border(drawable, fg, rect.x, rect.y + 1, rect.cx, rect.cy - 1, 1, clip, color_ctx);
 
     // clip
     const int16_t d = ((rect.cx - 2) / 4) + /* border=*/1;

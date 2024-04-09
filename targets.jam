@@ -58,6 +58,7 @@ exe rdpproxy :
   <library>src/core/session.o
   <library>src/core/session_events.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/protected_graphics.o
   <library>src/gdi/screen_functions.o
@@ -230,6 +231,7 @@ exe headlessclient :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/protected_graphics.o
   <library>src/gdi/screen_functions.o
@@ -553,6 +555,7 @@ test-run tests/acl/module_manager/test_create_module_rdp :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/protected_graphics.o
   <library>src/gdi/screen_functions.o
@@ -656,6 +659,7 @@ test-run tests/acl/test_license_api :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/protected_graphics.o
   <library>src/gdi/screen_functions.o
@@ -1071,6 +1075,7 @@ test-run tests/client_mods/test_rdp_client_large_pointer :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/protected_graphics.o
   <library>src/gdi/screen_functions.o
@@ -1143,6 +1148,7 @@ test-run tests/client_mods/test_rdp_client_tls_w2008 :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/protected_graphics.o
   <library>src/gdi/screen_functions.o
@@ -1215,6 +1221,7 @@ test-run tests/client_mods/test_rdp_client_wab :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/protected_graphics.o
   <library>src/gdi/screen_functions.o
@@ -2120,6 +2127,7 @@ test-run tests/front/test_front :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/protected_graphics.o
   <library>src/gdi/screen_functions.o
@@ -2457,6 +2465,7 @@ test-run tests/mod/internal/test_close_mod :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -2506,6 +2515,7 @@ test-run tests/mod/internal/test_copy_paste :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keymap.o
@@ -2545,6 +2555,7 @@ test-run tests/mod/internal/test_dialog_mod :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -2598,6 +2609,7 @@ test-run tests/mod/internal/test_interactive_target_mod :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -2649,6 +2661,7 @@ test-run tests/mod/internal/test_login_mod :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -2700,6 +2713,7 @@ test-run tests/mod/internal/test_rail_module_host_mod :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keymap.o
@@ -2809,6 +2823,7 @@ test-run tests/mod/internal/widget/test_button :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -2869,6 +2884,7 @@ test-run tests/mod/internal/widget/test_delegated_copy :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keymap.o
@@ -2902,6 +2918,7 @@ test-run tests/mod/internal/widget/test_dialog :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -2944,6 +2961,7 @@ test-run tests/mod/internal/widget/test_edit :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -2981,6 +2999,7 @@ test-run tests/mod/internal/widget/test_edit_valid :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -3020,6 +3039,7 @@ test-run tests/mod/internal/widget/test_form :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keymap.o
@@ -3057,6 +3077,7 @@ test-run tests/mod/internal/widget/test_grid :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -3090,6 +3111,7 @@ test-run tests/mod/internal/widget/test_group_box :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -3151,6 +3173,7 @@ test-run tests/mod/internal/widget/test_interactive_target :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keymap.o
@@ -3255,6 +3278,7 @@ test-run tests/mod/internal/widget/test_login :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -3328,6 +3352,7 @@ test-run tests/mod/internal/widget/test_number_edit :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -3361,6 +3386,7 @@ test-run tests/mod/internal/widget/test_password :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -3396,6 +3422,7 @@ test-run tests/mod/internal/widget/test_screen :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -3432,6 +3459,7 @@ test-run tests/mod/internal/widget/test_scroll :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keymap.o
@@ -3464,6 +3492,7 @@ test-run tests/mod/internal/widget/test_selector :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -3506,6 +3535,7 @@ test-run tests/mod/internal/widget/test_tooltip :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keymap.o
@@ -3540,6 +3570,7 @@ test-run tests/mod/internal/widget/test_vertical_scroll_text :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -3573,6 +3604,7 @@ test-run tests/mod/internal/widget/test_wab_close :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keymap.o
@@ -3612,6 +3644,7 @@ test-run tests/mod/internal/widget/test_wait :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/text_metrics.o
   <library>src/keyboard/keylayouts.o
@@ -3782,6 +3815,7 @@ test-run tests/mod/rdp/test_rdp :
   <library>src/core/error.o
   <library>src/core/font.o
   <library>src/gdi/clip_from_cmd.o
+  <library>src/gdi/draw_utils.o
   <library>src/gdi/graphic_api.o
   <library>src/gdi/protected_graphics.o
   <library>src/gdi/screen_functions.o
@@ -4701,11 +4735,6 @@ test-run tests/utils/test_ellipse :
 test-run tests/utils/test_error_message_ctx :
   $(REDEMPTION_TEST_PATH)/utils/test_error_message_ctx.cpp
 :
-  <library>app_path_test.o
-  <library>src/system/linux/system/i18n/message_translator_gettext.o
-  <library>src/utils/fileutils.o
-  <library>src/utils/strutils.o
-  $(MUSL_GETTEXT)
 ;
 test-run tests/utils/test_file_permissions :
   $(REDEMPTION_TEST_PATH)/utils/test_file_permissions.cpp
@@ -4975,6 +5004,7 @@ obj src/core/pid_file.o : $(REDEMPTION_SRC_PATH)/core/pid_file.cpp ;
 obj src/core/session.o : $(REDEMPTION_SRC_PATH)/core/session.cpp ;
 obj src/core/session_events.o : $(REDEMPTION_SRC_PATH)/core/session_events.cpp ;
 obj src/gdi/clip_from_cmd.o : $(REDEMPTION_SRC_PATH)/gdi/clip_from_cmd.cpp ;
+obj src/gdi/draw_utils.o : $(REDEMPTION_SRC_PATH)/gdi/draw_utils.cpp ;
 obj src/gdi/graphic_api.o : $(REDEMPTION_SRC_PATH)/gdi/graphic_api.cpp ;
 obj src/gdi/protected_graphics.o : $(REDEMPTION_SRC_PATH)/gdi/protected_graphics.cpp ;
 obj src/gdi/screen_functions.o : $(REDEMPTION_SRC_PATH)/gdi/screen_functions.cpp ;
@@ -6077,6 +6107,7 @@ explicit
   src/core/session.o
   src/core/session_events.o
   src/gdi/clip_from_cmd.o
+  src/gdi/draw_utils.o
   src/gdi/graphic_api.o
   src/gdi/protected_graphics.o
   src/gdi/screen_functions.o
